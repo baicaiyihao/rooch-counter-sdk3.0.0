@@ -291,17 +291,13 @@ export function GridNavigation({
   return (
     <div 
     style={{ 
-      width: '100%',
-      position: fullWidth ? 'relative' : 'static',
-      left: fullWidth ? '50%' : 'auto',
-      transform: fullWidth ? 'translateX(-50%)' : 'none',
-      marginLeft: fullWidth ? '0' : 'auto',
-      marginRight: fullWidth ? '0' : 'auto',
+      width: '100%',  // 修改为始终100%
+      position: 'relative',
       boxSizing: 'border-box',
-      overflow: 'hidden'
+      overflow: 'hidden'  // 防止溢出
     }}
   >
-    <Grid container spacing={3} className="mb-8" sx={{ maxWidth: '1200px', margin: '0 auto' }}>
+    <Grid container spacing={3} className="mb-8" className="mb-8" sx={{ width: '100%', margin: '0 auto', maxWidth: 'none' }}>
     {cards.map((card, index) => (
       <Grid 
         item 
@@ -311,7 +307,7 @@ export function GridNavigation({
         lg={card.width?.lg || lg} 
         key={index}
       >
-        <CardContainer className="w-full" onClick={card.onClick}>
+        <CardContainer className="w-full h-full" onClick={card.onClick}>
           <CardBody className={cn(
             "backdrop-filter backdrop-blur-md bg-white/30 border border-white/40 rounded-xl shadow-md hover:shadow-xl transition-all duration-300",
             "flex flex-col justify-start items-start p-6 relative overflow-hidden",
