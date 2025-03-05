@@ -1,21 +1,12 @@
 import { keyframes } from "@emotion/react";
 import { styled } from "@mui/material/styles";
 import backgroundImage from '../assets/original_bg.webp';
-
-// 定义背景动画
- const backgroundAnimation = keyframes`
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+ 
+const backgroundAnimation = keyframes`
+  0%, 100% { transform: scale(1.02); }
+  50% { transform: scale(1); }
 `;
 
-// 创建带有动画背景的容器
 export const AnimatedBackground = styled('div')`
   position: fixed;
   top: 0;
@@ -25,9 +16,10 @@ export const AnimatedBackground = styled('div')`
   background-image: url(${backgroundImage});
   background-size: cover;
   background-position: center;
-  z-index: -1;
-  animation: ${backgroundAnimation} 30s ease infinite;
-  will-change: background-position; // 优化性能
+  z-index: -2;
+  transform: translateZ(0);
+  will-change: transform;
+  animation: ${backgroundAnimation} 20s ease-in-out infinite;
   
   &::before {
     content: '';
@@ -36,10 +28,40 @@ export const AnimatedBackground = styled('div')`
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(5px);
+    background: linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.3),
+      rgba(255, 255, 255, 0.1)
+    );
+    transform: translateZ(0);
   }
 `;
+
+// ... 其他代码保持不变 ...
+// export const AnimatedBackground = styled('div')`
+//   position: fixed;
+//   top: 0;
+//   left: 0;
+//   width: 100%;
+//   height: 100%;
+//   background-image: url(${backgroundImage});
+//   background-size: cover;
+//   background-position: center;
+//   z-index: -1;
+//   animation: ${backgroundAnimation} 30s ease infinite;
+//   will-change: background-position; // 优化性能
+  
+//   &::before {
+//     content: '';
+//     position: absolute;
+//     top: 0;
+//     left: 0;
+//     right: 0;
+//     bottom: 0;
+//     background: rgba(255, 255, 255, 0.85);
+//     backdrop-filter: blur(5px);
+//   }
+// `;
 
 // 添加浮动粒子动画
 export const particleFloat = keyframes`

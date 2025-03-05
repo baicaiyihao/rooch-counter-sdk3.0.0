@@ -19,7 +19,7 @@ import { useNetworkVariable } from "./networks.ts";
 import { GridNavigation, NavigationCard } from './componnents/grid_navigation'; 
 import { CheckIn } from './componnents/check_in';
 import { MODULE_ADDRESS,FATETYPE } from './config/constants.ts'
-
+import { ParticlesBackground } from "./components/shared/particles_background.tsx"
 function App() {
   const sessionKey = useCurrentSession();
   const client = useRoochClient();
@@ -107,10 +107,13 @@ function App() {
 
   return (
     <>
-      {/* <AnimatedBackground /> */}
+      <AnimatedBackground />
+      <ParticlesBackground/>
       <NavBar />
       <Container
-       className="app-container"  style={{ maxWidth: '100%', padding: '0 16px',position:'relative',zIndex: 1}}>
+       className="app-container"  style={{ maxWidth: '100%', padding: '0 16px',position:'relative',zIndex: 1,
+        backdropFilter: 'blur(10px)',
+        backgroundColor: 'rgba(255, 255, 255, 0.3)', transition: 'backdrop-filter 0.3s ease'}}>
         <Stack 
      direction="column-reverse"
      spacing={2}
