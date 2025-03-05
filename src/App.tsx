@@ -1,24 +1,20 @@
-import { Container, Flex, Heading, Text } from "@radix-ui/themes";
+import { Container } from "@radix-ui/themes";
 import { LoadingButton } from "@mui/lab";  
 import "./styles.css"; 
-import { Button, Stack, Typography, Box, AppBar, Toolbar } from "@mui/material"; 
+import {  Stack } from "@mui/material"; 
 import { AnimatedBackground} from "./components/shared/animation_components"
 import { NavBar } from './components/shared/nav_bar';
-
+import { StakeByGrowVotes } from './componnents/stake_by_grow_votes';
 import {
   useCurrentSession,
   useRoochClientQuery,
   useRoochClient,
-  ConnectButton,
   useCurrentAddress,
-  SessionKeyGuard,
 } from "@roochnetwork/rooch-sdk-kit";
 
 import { useEffect, useState } from "react";
-import { useNetworkVariable } from "./networks.ts";
 import { GridNavigation, NavigationCard } from './componnents/grid_navigation'; 
 import { CheckIn } from './componnents/check_in';
-import { MODULE_ADDRESS,FATETYPE } from './config/constants.ts'
 import { ParticlesBackground } from "./components/shared/particles_background.tsx"
 function App() {
   const sessionKey = useCurrentSession();
@@ -44,7 +40,6 @@ function App() {
   const [checkInData, setCheckInData] = useState<any>(null);
   const [checkInConfig, setCheckInConfig] = useState<any>(null);
 
-
    // 获取签到数据
    useEffect(() => {
     const fetchCheckInData = async () => {
@@ -64,14 +59,76 @@ function App() {
     fetchCheckInData();
   }, [currentAddress]);
 
+
+  const [poolInfo, setPoolInfo] = useState<any>(null);
+  const [timeRemaining, setTimeRemaining] = useState<string>('');
+
+  const {
+    QueryStakePoolInfo,
+  } = StakeByGrowVotes();
+
+  useEffect(() => {
+    const fetchPoolInfo = async () => {
+      try {
+        const poolData = await QueryStakePoolInfo();
+        setPoolInfo(poolData);
+      } catch (error) {
+        console.error('获取质押池信息失败:', error);
+      }
+    };
+    fetchPoolInfo();
+  }, []);
+
+
+  useEffect(() => {
+    if (!poolInfo?.end_time) return;
+
+    const updateCountdown = () => {
+      const now = Math.floor(Date.now() / 1000);
+      const endTime = parseInt(poolInfo.end_time);
+      const diff = endTime - now;
+
+      if (diff <= 0) {
+        setTimeRemaining('活动已结束');
+        return;
+      }
+
+      const days = Math.floor(diff / (24 * 60 * 60));
+      const hours = Math.floor((diff % (24 * 60 * 60)) / (60 * 60));
+      const minutes = Math.floor((diff % (60 * 60)) / 60);
+      const seconds = diff % 60;
+
+      setTimeRemaining(`${days}天 ${hours}时 ${minutes}分 ${seconds}秒`);
+    };
+
+    updateCountdown();
+    const timer = setInterval(updateCountdown, 1000);
+    return () => clearInterval(timer);
+  }, [poolInfo]);
+
     // 添加导航卡片数据
     const navigationCards: NavigationCard[] = [
       {
         title: "质押操作",
-        description: "管理您的质押、解除质押和领取奖励等操作。",
+        description: poolInfo ? 
+        `管理您的质押、解除质押和领取奖励等操作\n 总可挖取: ${poolInfo.total_fate_supply || 0} FATE\n剩余时间: ${timeRemaining}` : "管理您的质押、解除质押和领取奖励等操作。",
         icon: "💰",
         onClick: () => window.location.href = '/stake',
-        width:{lg:8}
+        width:{lg:8},extraContent: poolInfo ? {
+          stats: [
+            {
+              label: "总质押数量",
+              value: `${poolInfo.total_staked_votes || 0} 票`,
+              icon: "📊"
+            },
+            {
+              label: "每日产出",
+              value: `${poolInfo.fate_per_day || 0} FATE`,
+              icon: "📈"
+            }
+          ],
+          countdown: timeRemaining
+        } : undefined
       },
       {
         title: "每日签到",

@@ -76,6 +76,12 @@ export interface NavigationCard {
     totalDays?: number;
     nextReward?: string;
     isCheckedInToday?: boolean;
+    stats?: Array<{
+      label: string;
+      value: string;
+      icon: string;
+    }>;
+    countdown?: string;
   };
 }
 
@@ -213,6 +219,51 @@ export function GridNavigation({
                     </RewardBadge>
                   </div>
                 )}
+              </CardItem>
+            )}
+
+            {card.extraContent?.stats && (
+              <CardItem translateZ="50" className="mt-4 w-full relative z-10">
+                <div className="grid grid-cols-2 gap-4">
+                  {card.extraContent.stats.map((stat, index) => (
+                    <motion.div
+                      key={index}
+                      className="bg-white/20 rounded-lg p-3"
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <span>{stat.icon}</span>
+                        <span className="text-sm font-medium text-gray-600">{stat.label}</span>
+                      </div>
+                      <div className="text-lg font-bold text-indigo-600 mt-1">
+                        {stat.value}
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </CardItem>
+            )}
+
+            {card.extraContent?.countdown && (
+              <CardItem translateZ="60" className="mt-4 w-full relative z-10">
+                <motion.div
+                  className="bg-red-500/10 rounded-lg p-3"
+                  animate={{ 
+                    boxShadow: [
+                      "0 0 0 rgba(239, 68, 68, 0.2)",
+                      "0 0 20px rgba(239, 68, 68, 0.6)",
+                      "0 0 0 rgba(239, 68, 68, 0.2)"
+                    ]
+                  }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  <div className="text-sm font-medium text-gray-600">
+                    剩余时间
+                  </div>
+                  <div className="text-lg font-bold text-red-600 mt-1">
+                    {card.extraContent.countdown}
+                  </div>
+                </motion.div>
               </CardItem>
             )}
           </CardBody>
