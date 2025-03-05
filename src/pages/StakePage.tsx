@@ -7,7 +7,7 @@ import { keyframes } from "@emotion/react";
 import { motion } from "framer-motion";
 import Confetti from 'react-confetti';
 import useWindowSize from 'react-use/lib/useWindowSize';
-import { useCurrentAddress, useWallets, useRoochClient } from '@roochnetwork/rooch-sdk-kit';
+import { useCurrentAddress, useWallets, useRoochClient,SessionKeyGuard} from '@roochnetwork/rooch-sdk-kit';
 import { getCoinDecimals, formatBalance } from '../utils/coinUtils';
 import { FATETYPE } from '../config/constants';
 import {AnimatedBackground} from '../components/shared/animation_components'
@@ -325,7 +325,8 @@ export default function StakePage() {
               </Zoom>
             </Box>
             <Stack direction="row" spacing={2} justifyContent="center" sx={{ mt: 2 }}>
-              <StyledButton 
+            <SessionKeyGuard onClick={handleStake}>
+            <StyledButton 
                 variant="contained" 
                 color="primary" 
                 onClick={handleStake}
@@ -335,26 +336,30 @@ export default function StakePage() {
               >
                 质押
               </StyledButton>
+              </SessionKeyGuard>
+
+              <SessionKeyGuard onClick={handleUnstake}>
               <StyledButton 
                 variant="outlined"
                 color="warning"
-                onClick={handleUnstake}
                 disabled={!stakeInfo?.stake_grow_votes}
                 loading={loading}
                 startIcon={<span>📤</span>}
               >
                 解除质押
               </StyledButton>
+              </SessionKeyGuard>
+              
+              <SessionKeyGuard onClick={handleClaim}>
               <StyledButton 
                 variant="contained" 
                 color="success" 
-                onClick={handleClaim}
                 disabled={!stakeInfo?.accumulated_fate}
                 loading={loading}
-                startIcon={<span>🎁</span>}
-              >
+                startIcon={<span>🎁</span>}>
                 领取奖励
               </StyledButton>
+              </SessionKeyGuard>
             </Stack>
           </Stack>
         </CardContent>
