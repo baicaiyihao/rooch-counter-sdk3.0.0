@@ -1,15 +1,20 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import "@roochnetwork/rooch-sdk-kit/dist/index.css";
-import '@radix-ui/themes/styles.css';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
+import "@roochnetwork/rooch-sdk-kit/dist/index.css";
+// import '@radix-ui/themes/styles.css';
+import CheckInPage from "./pages/CheckInPage.tsx";
+import RafflePage from "./pages/RafflePage.tsx";
+import StakePage from "./pages/StakePage.tsx";
+import LeaderboardPage from "./pages/LeaderboardPage.tsx";
 import { RoochProvider, WalletProvider } from '@roochnetwork/rooch-sdk-kit'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import {Theme} from '@radix-ui/themes';
 import { networkConfig } from "./networks";
 import App from './App';
 import { ErrorGuard } from "./ErrorGuard.tsx";
-import { DEVNET_COUNTER_PACKAGE_ID } from './constants.ts'
+import { MODULE_ADDRESS } from './constants.ts'
 
 const queryClient = new QueryClient();
 
@@ -21,13 +26,23 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
               {
                 appName: "rooch_test",
                 appUrl: "https://test.com",
-                scopes: [`${DEVNET_COUNTER_PACKAGE_ID}::*::*`],
+                scopes: [`${MODULE_ADDRESS}::*::*`],
                 maxInactiveInterval: 1200
               }
             } defaultNetwork='testnet'>
               <WalletProvider preferredWallets={['UniSat']} chain={'bitcoin'} autoConnect>
                 <ErrorGuard/>
-                <App/>
+                
+                <BrowserRouter>
+              <Routes>
+              <Route path="/" element={<App />} />
+              <Route path="/check-in" element={<CheckInPage />} />
+              <Route path="/raffle" element={<RafflePage/>} />
+              <Route path="/stake" element={<StakePage/>} />
+              <Route path="/leaderboard" element={<LeaderboardPage/>} />
+
+            </Routes>
+          </BrowserRouter>
               </WalletProvider>
             </RoochProvider>
       </QueryClientProvider>
