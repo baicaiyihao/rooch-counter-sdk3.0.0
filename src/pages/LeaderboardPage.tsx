@@ -19,6 +19,7 @@ import { getCoinDecimals, formatBalance } from '../utils/coinUtils';
 import { FATETYPE } from '../config/constants';
 import { motion } from 'framer-motion';
 import {AnimatedBackground} from '../components/shared/animation_components'
+import { NavBar } from '../components/shared/nav_bar';
 
 
 // Custom card styling
@@ -179,6 +180,7 @@ export default function LeaderboardPage() {
   return (
     <>
       <AnimatedBackground />
+      <NavBar />
       <Stack
         className="font-sans"
         direction="column"

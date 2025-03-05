@@ -11,6 +11,7 @@ import { useCurrentAddress, useWallets, useRoochClient,SessionKeyGuard} from '@r
 import { getCoinDecimals, formatBalance } from '../utils/coinUtils';
 import { FATETYPE } from '../config/constants';
 import {AnimatedBackground} from '../components/shared/animation_components'
+import { NavBar } from '../components/shared/nav_bar';
 
 
 // 奖励闪光效果
@@ -349,7 +350,7 @@ export default function StakePage() {
                 解除质押
               </StyledButton>
               </SessionKeyGuard>
-              
+
               <SessionKeyGuard onClick={handleClaim}>
               <StyledButton 
                 variant="contained" 
@@ -370,6 +371,7 @@ export default function StakePage() {
   return (
     <>
       <AnimatedBackground />
+      <NavBar />
       {justStaked && (
         <Confetti
           width={width}

@@ -9,7 +9,7 @@ import { motion } from "framer-motion";
 import Confetti from 'react-confetti';
 import useWindowSize from 'react-use/lib/useWindowSize';
 import {AnimatedBackground} from '../components/shared/animation_components'
-
+import { NavBar } from '../components/shared/nav_bar';
 // 添加ç
 const particleFloat = keyframes`
   0% {
@@ -227,7 +227,7 @@ function CheckInPage() {
   return (
     <>
       <AnimatedBackground />
-      
+      <NavBar /> 
       {/*暂时去除 添加浮动粒子 */}
       {/* <Particle size={15} top="10%" left="10%" delay={0} />
       <Particle size={20} top="20%" left="80%" delay={1} />

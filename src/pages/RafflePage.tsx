@@ -8,6 +8,7 @@ import { styled } from "@mui/material/styles";
 import Confetti from 'react-confetti';
 import useWindowSize from 'react-use/lib/useWindowSize';
 import { AnimatedBackground} from '../components/shared/animation_components'
+import { NavBar } from '../components/shared/nav_bar';
 
 // Custom card style
 const StyledCard = styled(Card)`
@@ -193,7 +194,7 @@ function RafflePage() {
   return (
     <>
       <AnimatedBackground />
-      
+      <NavBar />
       {justRaffled && (
         <Confetti
           width={width}

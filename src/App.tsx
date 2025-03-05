@@ -1,8 +1,9 @@
 import { Container, Flex, Heading, Text } from "@radix-ui/themes";
 import { LoadingButton } from "@mui/lab";  
 import "./styles.css"; 
-import { Button, Chip, Divider, Stack, Typography,Box } from "@mui/material"; 
+import { Button, Stack, Typography, Box, AppBar, Toolbar } from "@mui/material"; 
 import { AnimatedBackground} from "./components/shared/animation_components"
+import { NavBar } from '../components/shared/nav_bar';
 
 import {
   useCurrentSession,
@@ -24,6 +25,13 @@ function App() {
   const client = useRoochClient();
   const currentAddress = useCurrentAddress();
 
+  const navItems = [
+    { name: 'FATE X', path: '/' },
+    { name: 'Stake', path: '/stake' },
+    { name: 'Check In', path: '/check-in' },
+    { name: 'Raffle', path: '/raffle' },
+    { name: 'Leaderboard', path: '/leaderboard' }
+  ];
   // const [loading, setLoading] = useState(false);
   // const devCounterAddress = useNetworkVariable("testnet");
   // const devCounterModule = `${devCounterAddress}::`;
@@ -106,12 +114,8 @@ function App() {
   return (
     <>
       <AnimatedBackground />
-       <header className="app-header">
-        <Box>
-          <Heading>Fate X</Heading>
-        </Box>
-        <ConnectButton />
-      </header>
+      <NavBar />
+    
 
       <Container
        className="app-container"  style={{ maxWidth: '100%', padding: '0 16px' }}>
