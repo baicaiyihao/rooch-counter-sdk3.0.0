@@ -1,4 +1,4 @@
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import { Heading } from "@radix-ui/themes";
 import { ConnectButton } from "@roochnetwork/rooch-sdk-kit";
 import { useEffect, useState } from "react";

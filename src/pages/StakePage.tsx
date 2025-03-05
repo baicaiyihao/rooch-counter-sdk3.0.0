@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { LoadingButton } from "@mui/lab";
-import { Button, Card, CardContent, Typography, Box, Chip, Grid, Fade, Zoom, Alert, Stack } from "@mui/material";
+import { Button, Card, CardContent, Typography, Box, Chip, Grid, Zoom, Alert, Stack } from "@mui/material";
 import { StakeByGrowVotes } from '../componnents/stake_by_grow_votes';
 import { styled } from "@mui/material/styles";
 import { keyframes } from "@emotion/react";
 import { motion } from "framer-motion";
 import Confetti from 'react-confetti';
 import useWindowSize from 'react-use/lib/useWindowSize';
-import { useCurrentAddress, useWallets, useRoochClient,SessionKeyGuard} from '@roochnetwork/rooch-sdk-kit';
+import { useCurrentAddress, useCurrentWallet, useRoochClient, SessionKeyGuard} from '@roochnetwork/rooch-sdk-kit';
 import { getCoinDecimals, formatBalance } from '../utils/coinUtils';
 import { FATETYPE } from '../config/constants';
 import {AnimatedBackground} from '../components/shared/animation_components'
@@ -77,10 +77,17 @@ export default function StakePage() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [justStaked, setJustStaked] = useState(false);
   const currentAddress = useCurrentAddress();
-  const connectionStatus = useWallets();
+  const connectionStatus = useCurrentWallet();
   const { width, height } = useWindowSize();
   const [fateBalance, setFateBalance] = useState<string>('0');
   const client = useRoochClient();
+
+  // let { data, error, isPending, refetch } = useRoochClientQuery(
+    //   "executeViewFunction",
+    //   {
+    //     target: `${devCounterModule}::value`,
+    //   },
+    // );
 
   const { 
     QueryStakePoolInfo, 
@@ -106,6 +113,7 @@ export default function StakePage() {
   };
 
   const fetchUserInfo = async () => {
+    console.log("staake currentAddress",currentAddress);
     if (!currentAddress) return;
     try {
       await UpdateGrowVotes();
@@ -260,7 +268,7 @@ export default function StakePage() {
   );
 
   const renderUserStakeCard = () => {
-    if (!currentAddress || connectionStatus) {
+    if (!currentAddress || connectionStatus.isDisconnected) {
       return (
         <StyledCard elevation={3}>
           <CardContent>
@@ -285,7 +293,9 @@ export default function StakePage() {
             <Alert severity="warning" sx={{ borderRadius: 2 }}>
               <Typography sx={{ mb: 1 }}>您还没有投票</Typography>
               <Typography variant="body2">
-                请前往 <Typography component="a" href={`https://grow.rooch.network/project/${projectName}`} target="_blank" sx={{ fontWeight: 'bold', textDecoration: 'underline' }}>Grow</Typography> 为项目投票以获取质押票数
+              请前往 <Typography component="a" href={`http://localhost:3000/`} target="_blank" sx={{ fontWeight: 'bold', textDecoration: 'underline' }}>Grow</Typography> 为项目投票以获取质押票数
+
+                {/* 请前往 <Typography component="a" href={`https://grow.rooch.network/project/${projectName}`} target="_blank" sx={{ fontWeight: 'bold', textDecoration: 'underline' }}>Grow</Typography> 为项目投票以获取质押票数 */}
               </Typography>
             </Alert>
           </CardContent>
@@ -370,7 +380,7 @@ export default function StakePage() {
 
   return (
     <>
-      <AnimatedBackground />
+      {/* <AnimatedBackground /> */}
       <NavBar />
       {justStaked && (
         <Confetti
@@ -393,13 +403,11 @@ export default function StakePage() {
             margin: "0 auto",    
             width: "100%"      
           }}      >
-        <Stack direction="row" justifyContent="space-between" alignItems="center"  sx={{ 
+        <Stack direction="row" justifyContent="center " alignItems="center"  sx={{ 
           mb: { xs: 4, md: 8 },
           width: "100%"
         }}>
-          <Button variant="outlined" onClick={() => window.history.back()} startIcon={<span>←</span>}>
-            返回首页
-          </Button>
+          
           <Typography variant="h4" sx={{ fontWeight: 'bold' }}>质押页面</Typography>
           <Box width={100} />
         </Stack>

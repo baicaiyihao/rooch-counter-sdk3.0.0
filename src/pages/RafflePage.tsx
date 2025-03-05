@@ -1,6 +1,6 @@
 import { LoadingButton } from "@mui/lab";
 import { Button, Card, CardContent, Stack, Typography, Box, Chip, Grid, Fade, Zoom, Snackbar } from "@mui/material";
-import { useCurrentAddress } from "@roochnetwork/rooch-sdk-kit";
+import { useCurrentAddress, SessionKeyGuard,useCurrentSession} from "@roochnetwork/rooch-sdk-kit";
 import { useState, useEffect } from "react";
 import { CheckIn } from '../componnents/check_in';
 import { Raffle } from '../componnents/raffle';
@@ -40,6 +40,7 @@ const StyledButton = styled(LoadingButton)`
 
 function RafflePage() {
   const currentAddress = useCurrentAddress();
+  const currentSession = useCurrentSession();
   const [loading, setLoading] = useState(false);
   const [checkInRecord, setCheckInRecord] = useState<any>(null);
   const [raffleConfig, setRaffleConfig] = useState<any>(null);
@@ -193,7 +194,7 @@ function RafflePage() {
 
   return (
     <>
-      <AnimatedBackground />
+      {/* <AnimatedBackground /> */}
       <NavBar />
       {justRaffled && (
         <Confetti
@@ -214,14 +215,8 @@ function RafflePage() {
           padding: "2rem",
         }}
       >
-        <Stack direction="row" justifyContent="space-between" alignItems="center" className="mb-8">
-          <Button 
-            variant="outlined" 
-            onClick={() => window.history.back()}
-            startIcon={<span>←</span>}
-          >
-            返回首页
-          </Button>
+        <Stack direction="row" justifyContent="center" alignItems="center" className="mb-8">
+        
           <Typography variant="h4" className="font-bold">
             抽奖活动
           </Typography>
@@ -313,29 +308,33 @@ function RafflePage() {
         </Grid>
 
         <Stack direction="row" spacing={3} justifyContent="center" className="mt-4">
-          <StyledButton
+         <SessionKeyGuard onClick={handleWeekRaffle}>
+         <StyledButton
             variant="contained"
             color="primary"
             size="large"
             loading={loading}
-            onClick={handleWeekRaffle}
             disabled={parseInt(checkInRecord?.lottery_count || '0') === 0}
             startIcon={<span>🎲</span>}
           >
             每周抽奖 ({checkInRecord?.lottery_count || 0})
           </StyledButton>
+         </SessionKeyGuard>
+         
           
+          <SessionKeyGuard onClick={handleFateRaffle}>
           <StyledButton
             variant="contained"
             color="secondary"
             size="large"
             loading={loading}
-            onClick={handleFateRaffle}
             startIcon={<span>✨</span>}
           >
             Fate抽奖
           </StyledButton>
-          
+          </SessionKeyGuard>
+
+          <SessionKeyGuard onClick={handleClaimMaxRaffle}>
           <StyledButton
             variant="outlined"
             color="success"
@@ -347,6 +346,8 @@ function RafflePage() {
           >
             领取保底奖励
           </StyledButton>
+          </SessionKeyGuard>
+
         </Stack>
 
         {parseInt(raffleRecord?.raffle_count || '0') < 10 && (

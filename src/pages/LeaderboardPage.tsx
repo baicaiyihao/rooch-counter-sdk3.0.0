@@ -179,7 +179,7 @@ export default function LeaderboardPage() {
 
   return (
     <>
-      <AnimatedBackground />
+      {/* <AnimatedBackground /> */}
       <NavBar />
       <Stack
         className="font-sans"
@@ -191,13 +191,11 @@ export default function LeaderboardPage() {
             margin: "0 auto",    // 居中显示
             width: "100%"        // 确保占满可用空间
           }}      >
- <Stack direction="row" justifyContent="space-between" alignItems="center"  sx={{ 
+ <Stack direction="row" justifyContent="center" alignItems="center"  sx={{ 
           mb: { xs: 4, md: 8 },
           width: "100%"
         }}>
-      <Button variant="outlined" onClick={() => window.history.back()} startIcon={<span>←</span>}>
-            返回首页
-          </Button>
+      
 
         <Typography variant="h4" sx={{ fontWeight: 'bold', }}>
           排行榜

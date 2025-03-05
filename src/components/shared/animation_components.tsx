@@ -1,5 +1,6 @@
 import { keyframes } from "@emotion/react";
 import { styled } from "@mui/material/styles";
+import backgroundImage from '../assets/original_bg.webp';
 
 // 定义背景动画
  const backgroundAnimation = keyframes`
@@ -21,7 +22,7 @@ export const AnimatedBackground = styled('div')`
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: url('/original_bg.webp');
+  background-image: url(${backgroundImage});
   background-size: cover;
   background-position: center;
   z-index: -1;

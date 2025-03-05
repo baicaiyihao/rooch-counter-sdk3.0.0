@@ -175,8 +175,6 @@ import { keyframes } from "@emotion/react";
 import { styled } from "@mui/material/styles";
 import { motion } from "framer-motion"; 
 import { cn } from "../utils/cn"; 
-import { Badge } from "../components/ui/badge";
-import { Button } from "../components/ui/button";
 import { CardBody, CardContainer, CardItem } from "../components/ui/3d-card";
 
 // 定义浮动动画
@@ -201,22 +199,6 @@ const AnimatedPaper = styled(Paper)`
   }
   animation: ${float} 4s ease-in-out infinite;
   animation-delay: ${props => props.delay || '0s'};
-`;
-
-// 定义脉冲动画
-const pulseAnimation = keyframes`
-  0% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.05);
-    opacity: 0.8;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
 `;
 
 // 创建脉冲效果的徽章
@@ -297,7 +279,7 @@ export function GridNavigation({
       overflow: 'hidden'  // 防止溢出
     }}
   >
-    <Grid container spacing={3} className="mb-8" className="mb-8" sx={{ width: '100%', margin: '0 auto', maxWidth: 'none' }}>
+    <Grid container spacing={3} className="mb-8" sx={{ width: '100%', margin: '0 auto', maxWidth: 'none' }}>
     {cards.map((card, index) => (
       <Grid 
         item 
