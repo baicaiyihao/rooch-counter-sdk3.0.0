@@ -163,6 +163,20 @@ export function Leaderboard(){
         return balance;
     }
 
+    const QueryLeaderboardEndTimeAndTotalBurned = async (): Promise<{ endTime: string, totalBurned: string}> => {
+        const result = await client.executeViewFunction({
+            address: MODULE_ADDRESS,
+            module: "leaderboard",
+            function: "query_leaderboard",
+            args: [],
+        }) as any;
+
+        return {
+            endTime: result?.return_values[0]?.decoded_value?.value?.end_time || "0",
+            totalBurned: result?.return_values[0]?.decoded_value?.value?.total_burned || "0"
+        };
+    };
+    
 
     const Snapshot = async (): Promise<any> => {
         const txn = new Transaction();
@@ -208,6 +222,7 @@ export function Leaderboard(){
         QueryLeaderboardRankTiers,
         QueryLeaderboardGrowPoolsBalance,
         QueryLeaderboardRgasPoolsBalance,
+        QueryLeaderboardEndTimeAndTotalBurned,
         Snapshot,
     };
 }

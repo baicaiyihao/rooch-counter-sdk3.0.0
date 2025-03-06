@@ -7,7 +7,7 @@ import { keyframes } from "@emotion/react";
 import { motion } from "framer-motion";
 import Confetti from 'react-confetti';
 import useWindowSize from 'react-use/lib/useWindowSize';
-import { useCurrentAddress, useCurrentWallet, useRoochClient, SessionKeyGuard} from '@roochnetwork/rooch-sdk-kit';
+import { useCurrentAddress, useCurrentWallet, useRoochClient, useCurrentSession, SessionKeyGuard} from '@roochnetwork/rooch-sdk-kit';
 import { getCoinDecimals, formatBalance } from '../utils/coinUtils';
 import { FATETYPE } from '../config/constants';
 import { Layout } from '../components/shared/layout';
@@ -80,6 +80,8 @@ export default function StakePage() {
   const { width, height } = useWindowSize();
   const [fateBalance, setFateBalance] = useState<string>('0');
   const client = useRoochClient();
+  const sessionKey = useCurrentSession();
+
 
   // let { data, error, isPending, refetch } = useRoochClientQuery(
     //   "executeViewFunction",

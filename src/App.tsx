@@ -14,12 +14,21 @@ import {
 import { useEffect, useState } from "react";
 import { GridNavigation, NavigationCard } from './componnents/grid_navigation'; 
 import { CheckIn } from './componnents/check_in';
+import { Leaderboard } from './componnents/leaderboard';
+
 function App() {
   const sessionKey = useCurrentSession();
   const client = useRoochClient();
   const currentAddress = useCurrentAddress();
-
- 
+  const [leaderboardData, setLeaderboardData] = useState<{
+    endTime: string;
+    timeRemaining: string;
+    totalBurned: string;
+  }>({
+    endTime: '0',
+    timeRemaining: '',
+    totalBurned: '0'
+  }); 
   // const [loading, setLoading] = useState(false);
   // const devCounterAddress = useNetworkVariable("testnet");
   // const devCounterModule = `${devCounterAddress}::`;
@@ -79,6 +88,41 @@ function App() {
     
     fetchPoolInfo();
   }, [currentAddress]);
+
+  const {
+    QueryLeaderboardEndTimeAndTotalBurned,
+  } = Leaderboard();
+
+  useEffect(() => {
+    const fetchLeaderboardData = async () => {
+      try {
+        const { endTime, totalBurned } = await QueryLeaderboardEndTimeAndTotalBurned();
+        const now = Math.floor(Date.now() / 1000);
+        const diff = parseInt(endTime) - now;
+        
+        let timeRemaining = '活动已结束';
+        if (diff > 0) {
+          const days = Math.floor(diff / (24 * 60 * 60));
+          const hours = Math.floor((diff % (24 * 60 * 60)) / (60 * 60));
+          const minutes = Math.floor((diff % (60 * 60)) / 60);
+          timeRemaining = `${days}天 ${hours}时 ${minutes}分`;
+        }
+
+        setLeaderboardData({
+          endTime,
+          timeRemaining,
+          totalBurned
+        });
+      } catch (error) {
+        console.error("获取排行榜数据失败:", error);
+      }
+    };
+    
+    fetchLeaderboardData();
+    const timer = setInterval(fetchLeaderboardData, 60000);
+    return () => clearInterval(timer);
+  }, []);
+  
 
   useEffect(() => {
     if (!poolInfo?.end_time) return;
@@ -148,11 +192,26 @@ function App() {
         width: { lg: 4} 
       },
       {
-        title: "市场交易",
-        description: "进行支付和查询价格记录。",
-        icon: "🛒",
+        title: "🔥 排行榜",
+        description: "参与 FATE 燃烧排名活动，赢取丰厚奖励。",
+        icon: "🏆",
         onClick: () => window.location.href = '/leaderboard',
-        width: { lg: 8 } 
+        width: { lg: 8 } ,
+        extraContent: {
+          countdown:leaderboardData.timeRemaining,
+          stats: [
+            {
+              label: "活动状态",
+              value: leaderboardData.timeRemaining === '活动已结束' ? '已结束' : '活动火热进行中🔥',
+              icon: "⏳"
+            },
+            {
+              label: "总燃烧量",
+              value: `${leaderboardData.totalBurned || 0} FATE`,
+              icon: "🔥"
+            }
+          ]
+        }
       }
     ];
 

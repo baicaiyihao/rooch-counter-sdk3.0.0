@@ -1,5 +1,6 @@
 import { LoadingButton } from "@mui/lab";
 import {
+  Divider,
   Container,
   Card,
   CardContent,
@@ -81,7 +82,7 @@ function RafflePage() {
   } = Raffle();
 
   useEffect(() => {
-      fetchData();
+    fetchData();
   }, []);
 
   const fetchData = async () => {
@@ -90,16 +91,16 @@ function RafflePage() {
       setRaffleConfig(raffleConfigData);
       console.log("奖池配置:", raffleConfigData);
 
-    if (currentAddress) {
-      const checkInRecordData = await QueryCheckInRecord();
-      const raffleRecordData = await QueryCheckInRaffleRecord();
-      
-      setCheckInRecord(checkInRecordData);
-      if (raffleRecordData) {
-        setRaffleRecord(raffleRecordData);
-        console.log("抽奖记录:", raffleRecordData);
+      if (currentAddress) {
+        const checkInRecordData = await QueryCheckInRecord();
+        const raffleRecordData = await QueryCheckInRaffleRecord();
+
+        setCheckInRecord(checkInRecordData);
+        if (raffleRecordData) {
+          setRaffleRecord(raffleRecordData);
+          console.log("抽奖记录:", raffleRecordData);
+        }
       }
-    }
     } catch (error) {
       console.error("获取数据失败:", error);
     }
@@ -157,6 +158,14 @@ function RafflePage() {
 
   const handleFateRaffle = async () => {
     if (loading) return;
+
+    // 添加抽奖次数检查
+    if (parseInt(raffleRecord?.raffle_count || "0") >= 50) {
+      setSnackbarMessage("已达到最大抽奖次数限制（50次）");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+      return;
+    }
 
     setLoading(true);
     try {
@@ -322,6 +331,65 @@ function RafflePage() {
                   </Typography>
                   {raffleConfig ? (
                     <Stack spacing={2}>
+                      {/* 奖品信息 */}
+                      <Typography
+                        variant="subtitle1"
+                        className="mb-2 font-bold"
+                      >
+                        奖品设置:
+                      </Typography>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Typography>特等奖:</Typography>
+                        <Chip
+                          label={`${raffleConfig?.grand_prize_duration?.toString() || "0"} FATE`}
+                          color="primary"
+                          sx={{ fontWeight: "bold" }}
+                        />
+                      </Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Typography>二等奖:</Typography>
+                        <Chip
+                          label={`${raffleConfig?.second_prize_duration?.toString() || "0"} FATE`}
+                          color="success"
+                          sx={{ fontWeight: "bold" }}
+                        />
+                      </Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Typography>三等奖:</Typography>
+                        <Chip
+                          label={`${raffleConfig?.third_prize_duration?.toString() || "0"} FATE`}
+                          color="secondary"
+                          sx={{ fontWeight: "bold" }}
+                        />
+                      </Box>
+
+                      <Divider sx={{ my: 2 }} />
+
+                      {/* 中奖概率 */}
+                      <Typography
+                        variant="subtitle1"
+                        className="mb-2 font-bold"
+                      >
+                        中奖概率:
+                      </Typography>
                       <Box
                         sx={{
                           display: "flex",
@@ -429,6 +497,19 @@ function RafflePage() {
               >
                 再抽 {10 - parseInt(raffleRecord?.raffle_count || "0")}{" "}
                 次即可领取保底奖励！
+              </Typography>
+            </Fade>
+          )}
+          {raffleRecord && (
+            <Fade in={true}>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ mt: 2, textAlign: "center" }}
+              >
+                {parseInt(raffleRecord?.raffle_count || "0") >= 50
+                  ? "已达到最大抽奖次数（50次）"
+                  : `剩余可抽奖次数：${50 - parseInt(raffleRecord?.raffle_count || "0")}次`}
               </Typography>
             </Fade>
           )}
