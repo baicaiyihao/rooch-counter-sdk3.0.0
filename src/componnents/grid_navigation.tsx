@@ -3,8 +3,7 @@ import { Grid, Paper } from "@mui/material";
 import { keyframes } from "@emotion/react";
 import { styled } from "@mui/material/styles";
 import { motion } from "framer-motion"; 
-import { cn } from "../utils/cn"; 
-import { CardBody, CardContainer, CardItem } from "../components/ui/3d-card";
+
 
 // 定义浮动动画
 const float = keyframes`
@@ -128,10 +127,12 @@ export function GridNavigation({
             md={card.width?.md || md} 
             lg={card.width?.lg || lg} 
             key={index}
+            sx={{ mb: 3 }}  
           >
             <Card
               onClick={card.onClick}
-              style={{ minHeight: card.height || defaultHeight }}
+              style={{ minHeight: card.height || defaultHeight,margin: '8px',  
+              padding: '24px'  }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               initial={{ opacity: 0, y: 20 }}

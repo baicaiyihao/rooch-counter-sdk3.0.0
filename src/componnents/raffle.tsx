@@ -71,8 +71,9 @@ export function Raffle(){
                 Args.address(address),
             ],
         }) as any;
-        console.log(result?.return_values[0]?.decoded_value?.value);
-        return result?.return_values[0]?.decoded_value?.value;
+        const recordData = result?.return_values[0]?.decoded_value?.value;
+    console.log("当前抽奖次数:", recordData?.raffle_count || 0, "/50");
+    return recordData;
     }
 
     return {
