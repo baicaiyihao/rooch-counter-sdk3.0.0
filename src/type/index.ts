@@ -28,6 +28,8 @@ export type PriceRecord = {
 export type CheckInRaffleRecord = {
     user: address,
     raffle_count: u64,
+    daily_raffle_count: u64,
+    last_raffle_date: u64
 }
 
 
@@ -39,6 +41,7 @@ export type CheckInRaffle = {
     second_prize_weight: u256,
     third_prize_weight: u256,
     max_raffle_count_weight: u64,
+    daily_max_raffle_count: u64
 }
 
 export type StakePoolInfo = {
