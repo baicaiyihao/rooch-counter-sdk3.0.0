@@ -67,7 +67,6 @@ function App() {
 
   useEffect(() => {
     const fetchPoolInfo = async () => {
-      if (currentAddress) {
         try {
           const info = await QueryStakePoolInfo();
           console.log('质押池信息:', info); // 添加日志查看数据
@@ -75,7 +74,7 @@ function App() {
         } catch (error) {
           console.error("获取质押池信息失败:", error);
         }
-      }
+   
     };
     
     fetchPoolInfo();

@@ -11,7 +11,7 @@ import { useCurrentAddress, useCurrentWallet, useRoochClient, SessionKeyGuard} f
 import { getCoinDecimals, formatBalance } from '../utils/coinUtils';
 import { FATETYPE } from '../config/constants';
 import { Layout } from '../components/shared/layout';
-
+import { CircularProgress } from '@mui/material'; 
 
 // 奖励闪光效果
 const shineAnimation = keyframes`
@@ -278,49 +278,138 @@ export default function StakePage() {
     </StyledCard>
   );
 
-  const renderUserStakeCard = () => {
-    if (!currentAddress || connectionStatus.isDisconnected) {
-      return (
-        <StyledCard elevation={3}>
-          <CardContent>
-            <Typography variant="h5" sx={{ mb: 4, fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-              <Box component="span" sx={{ mr: 1, fontSize: '1.5rem' }}>👤</Box>
-              我的质押
-            </Typography>
-            <Alert severity="info" sx={{ borderRadius: 2 }}>请先连接钱包</Alert>
-          </CardContent>
-        </StyledCard>
-      );
-    }
+  // const renderUserStakeCard = () => {
+  //   if (!currentAddress || connectionStatus.isDisconnected) {
+  //     return (
+  //       <StyledCard elevation={3}>
+  //         <CardContent>
+  //           <Typography variant="h5" sx={{ mb: 4, fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+  //             <Box component="span" sx={{ mr: 1, fontSize: '1.5rem' }}>👤</Box>
+  //             我的质押
+  //           </Typography>
+  //           <Alert severity="info" sx={{ borderRadius: 2 }}>请先连接钱包</Alert>
+  //         </CardContent>
+  //       </StyledCard>
+  //     );
+  //   }
 
-    if (!hasVotes) {
-      return (
-        <StyledCard elevation={3}>
-          <CardContent>
-            <Typography variant="h5" sx={{ mb: 4, fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-              <Box component="span" sx={{ mr: 1, fontSize: '1.5rem' }}>👤</Box>
-              我的质押
-            </Typography>
-            <Alert severity="warning" sx={{ borderRadius: 2 }}>
-              <Typography sx={{ mb: 1 }}>您还没有投票</Typography>
-              <Typography variant="body2">
+  //   if (!hasVotes) {
+  //     return (
+  //       <StyledCard elevation={3}>
+  //         <CardContent>
+  //           <Typography variant="h5" sx={{ mb: 4, fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+  //             <Box component="span" sx={{ mr: 1, fontSize: '1.5rem' }}>👤</Box>
+  //             我的质押
+  //           </Typography>
+  //           <Alert severity="warning" sx={{ borderRadius: 2 }}>
+  //             <Typography sx={{ mb: 1 }}>您还没有投票</Typography>
+  //             <Typography variant="body2">
+  //             请前往 <Typography component="a" href={`http://localhost:3000/`} target="_blank" sx={{ fontWeight: 'bold', textDecoration: 'underline' }}>Grow</Typography> 为项目投票以获取质押票数
+
+  //               {/* 请前往 <Typography component="a" href={`https://grow.rooch.network/project/${projectName}`} target="_blank" sx={{ fontWeight: 'bold', textDecoration: 'underline' }}>Grow</Typography> 为项目投票以获取质押票数 */}
+  //             </Typography>
+  //           </Alert>
+  //         </CardContent>
+  //       </StyledCard>
+  //     );
+  //   }
+
+  //   return (
+  //     <StyledCard elevation={3}>
+  //       <CardContent>
+  //         <Typography variant="h5" sx={{ mb: 4, fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+  //           <Box component="span" sx={{ mr: 1, fontSize: '1.5rem' }}>👤</Box>
+  //           我的质押
+  //         </Typography>
+  //         <Stack spacing={4}>
+  //         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+  //             <Typography>FATE 余额:</Typography>
+  //             <Zoom in={true} style={{ transitionDelay: '200ms' }}>
+  //               <Chip label={`${fateBalance}`} color="primary" sx={{ fontWeight: 'bold' }} />
+  //             </Zoom>
+  //           </Box>
+  //           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+  //             <Typography>已质押数量:</Typography>
+  //             <Zoom in={true} style={{ transitionDelay: '100ms' }}>
+  //               <ShiningChip label={`${stakeInfo?.stake_grow_votes || 0} 票`} color="success" sx={{ fontWeight: 'bold' }} />
+  //             </Zoom>
+  //           </Box>
+  //           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+  //             <Typography>待质押数量:</Typography>
+  //             <Zoom in={true} style={{ transitionDelay: '200ms' }}>
+  //               <Chip label={`${stakeInfo?.fate_grow_votes || 0} 票`} color="primary" sx={{ fontWeight: 'bold' }} />
+  //             </Zoom>
+  //           </Box>
+  //           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+  //             <Typography>待领取奖励:</Typography>
+  //             <Zoom in={true} style={{ transitionDelay: '300ms' }}>
+  //               <ShiningChip label={`${stakeInfo?.accumulated_fate || 0} FATE`} color="secondary" sx={{ fontWeight: 'bold' }} />
+  //             </Zoom>
+  //           </Box>
+  //           <Stack direction="row" spacing={2} justifyContent="center" sx={{ mt: 2 }}>
+  //           <SessionKeyGuard onClick={handleStake}>
+  //           <StyledButton 
+  //               variant="contained" 
+  //               color="primary" 
+  //               onClick={handleStake}
+  //               disabled={!stakeInfo?.fate_grow_votes}
+  //               loading={loading}
+  //               startIcon={<span>📥</span>}
+  //             >
+  //               质押
+  //             </StyledButton>
+  //             </SessionKeyGuard>
+
+  //             <SessionKeyGuard onClick={handleUnstake}>
+  //             <StyledButton 
+  //               variant="outlined"
+  //               color="warning"
+  //               disabled={!stakeInfo?.stake_grow_votes}
+  //               loading={loading}
+  //               startIcon={<span>📤</span>}
+  //             >
+  //               解除质押
+  //             </StyledButton>
+  //             </SessionKeyGuard>
+
+  //             <SessionKeyGuard onClick={handleClaim}>
+  //             <StyledButton 
+  //               variant="contained" 
+  //               color="success" 
+  //               disabled={!stakeInfo?.accumulated_fate}
+  //               loading={loading}
+  //               startIcon={<span>🎁</span>}>
+  //               领取奖励
+  //             </StyledButton>
+  //             </SessionKeyGuard>
+  //           </Stack>
+  //         </Stack>
+  //       </CardContent>
+  //     </StyledCard>
+  //   );
+  // };
+
+  const renderUserStakeCard = () => (
+    <StyledCard elevation={3}>
+      <CardContent>
+        <Typography variant="h5" sx={{ mb: 4, fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+          <Box component="span" sx={{ mr: 1, fontSize: '1.5rem' }}>👤</Box>
+          我的质押
+        </Typography>
+        {!currentAddress || connectionStatus.isDisconnected ? (
+          <Alert severity="info" sx={{ borderRadius: 2 }}>请先连接钱包</Alert>
+        ) : !stakeInfo ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+            <CircularProgress />
+          </Box>
+        ) : !hasVotes ? (
+          <Alert severity="warning" sx={{ borderRadius: 2 }}>
+            <Typography sx={{ mb: 1 }}>您还没有投票</Typography>
+            <Typography variant="body2">
               请前往 <Typography component="a" href={`http://localhost:3000/`} target="_blank" sx={{ fontWeight: 'bold', textDecoration: 'underline' }}>Grow</Typography> 为项目投票以获取质押票数
-
-                {/* 请前往 <Typography component="a" href={`https://grow.rooch.network/project/${projectName}`} target="_blank" sx={{ fontWeight: 'bold', textDecoration: 'underline' }}>Grow</Typography> 为项目投票以获取质押票数 */}
-              </Typography>
-            </Alert>
-          </CardContent>
-        </StyledCard>
-      );
-    }
-
-    return (
-      <StyledCard elevation={3}>
-        <CardContent>
-          <Typography variant="h5" sx={{ mb: 4, fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-            <Box component="span" sx={{ mr: 1, fontSize: '1.5rem' }}>👤</Box>
-            我的质押
-          </Typography>
+            </Typography>
+          </Alert>
+        ) : (
           <Stack spacing={4}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <Typography>FATE 余额:</Typography>
@@ -384,12 +473,12 @@ export default function StakePage() {
               </SessionKeyGuard>
             </Stack>
           </Stack>
-        </CardContent>
-      </StyledCard>
-    );
-  };
-
+        )}
+      </CardContent>
+    </StyledCard>
+  );
   return (
+
     <Layout>
       <Container className="app-container">
       {justStaked && (

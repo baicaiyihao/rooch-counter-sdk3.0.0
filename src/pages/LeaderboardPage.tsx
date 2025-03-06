@@ -162,8 +162,8 @@ export default function LeaderboardPage() {
 
   // Fetch data on component mount
   useEffect(() => {
+    fetchRankingsData();
     if (currentAddress && client) {  
-      fetchRankingsData();
       fetchUserNftData();
       fetchFateBalance();
     }
