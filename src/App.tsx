@@ -1,5 +1,4 @@
 import { Container } from "@radix-ui/themes";
-import { LoadingButton } from "@mui/lab";  
 import "./styles.css"; 
 import {  Stack } from "@mui/material"; 
 import { AnimatedBackground} from "./components/shared/animation_components"
@@ -15,7 +14,6 @@ import {
 import { useEffect, useState } from "react";
 import { GridNavigation, NavigationCard } from './componnents/grid_navigation'; 
 import { CheckIn } from './componnents/check_in';
-import { ParticlesBackground } from "./components/shared/particles_background.tsx"
 function App() {
   const sessionKey = useCurrentSession();
   const client = useRoochClient();

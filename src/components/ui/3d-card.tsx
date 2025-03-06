@@ -6,9 +6,8 @@ import React, {
   useState,
   useContext,
   useRef,
-  useEffect,
 } from "react";
-
+import throttle from 'lodash.throttle';
 const MouseEnterContext = createContext<
   [boolean, React.Dispatch<React.SetStateAction<boolean>>] | undefined
 >(undefined);
@@ -27,15 +26,14 @@ export const CardContainer = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [isMouseEntered, setIsMouseEntered] = useState(false);
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseMove = throttle((e: React.MouseEvent<HTMLDivElement>) => {
     if (!containerRef.current) return;
-    const { left, top, width, height } =
-      containerRef.current.getBoundingClientRect();
+    const { left, top, width, height } = containerRef.current.getBoundingClientRect();
     const x = (e.clientX - left - width / 2) / 25;
     const y = (e.clientY - top - height / 2) / 25;
-    
     containerRef.current.style.transform = `rotateY(${x}deg) rotateX(${-y}deg)`;
-  };
+  }, 16)
+  
 
   const handleMouseEnter = () => {
     setIsMouseEntered(true);

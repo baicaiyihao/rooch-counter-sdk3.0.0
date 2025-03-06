@@ -1,14 +1,14 @@
 import { LoadingButton } from "@mui/lab";
-import { Button, Card, CardContent, Stack, Typography, Box, Chip, Grid, Fade, Zoom, Snackbar } from "@mui/material";
-import { useCurrentAddress, SessionKeyGuard,useCurrentSession} from "@roochnetwork/rooch-sdk-kit";
+import { Container, Card, CardContent, Stack, Typography, Box, Chip, Grid, Fade, Zoom, Snackbar } from "@mui/material";
+import { useCurrentAddress, SessionKeyGuard,useCurrentSession,} from "@roochnetwork/rooch-sdk-kit";
 import { useState, useEffect } from "react";
 import { CheckIn } from '../componnents/check_in';
 import { Raffle } from '../componnents/raffle';
 import { styled } from "@mui/material/styles";
 import Confetti from 'react-confetti';
 import useWindowSize from 'react-use/lib/useWindowSize';
-import { AnimatedBackground} from '../components/shared/animation_components'
-import { NavBar } from '../components/shared/nav_bar';
+import { Layout } from '../components/shared/layout';
+
 
 // Custom card style
 const StyledCard = styled(Card)`
@@ -193,9 +193,8 @@ function RafflePage() {
   };
 
   return (
-    <>
-      {/* <AnimatedBackground /> */}
-      <NavBar />
+    <Layout>
+      <Container className="app-container">
       {justRaffled && (
         <Confetti
           width={width}
@@ -257,7 +256,7 @@ function RafflePage() {
                     </Box>
                   </Stack>
                 ) : (
-                  <Typography>加载抽奖记录中...</Typography>
+                  <Typography>--</Typography>
                 )}
               </CardContent>
             </StyledCard>
@@ -300,15 +299,15 @@ function RafflePage() {
                     </Box>
                   </Stack>
                 ) : (
-                  <Typography>加载奖池信息中...</Typography>
+                  <Typography>--</Typography>
                 )}
               </CardContent>
             </StyledCard>
           </Grid>
         </Grid>
 
-        <Stack direction="row" spacing={3} justifyContent="center" className="mt-4">
-         <SessionKeyGuard onClick={handleWeekRaffle}>
+        <Stack direction="row" spacing={2} justifyContent="center" className="mt-4 "  style={{ marginTop: '30px' }}>
+         {/* <SessionKeyGuard onClick={handleWeekRaffle}>
          <StyledButton
             variant="contained"
             color="primary"
@@ -319,9 +318,8 @@ function RafflePage() {
           >
             每周抽奖 ({checkInRecord?.lottery_count || 0})
           </StyledButton>
-         </SessionKeyGuard>
+         </SessionKeyGuard> */}
          
-          
           <SessionKeyGuard onClick={handleFateRaffle}>
           <StyledButton
             variant="contained"
@@ -373,7 +371,8 @@ function RafflePage() {
           }
         }}
       />
-    </>
+    </Container>
+    </Layout>
   );
 }
 

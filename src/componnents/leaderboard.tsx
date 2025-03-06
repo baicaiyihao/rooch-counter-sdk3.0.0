@@ -39,17 +39,27 @@ export function Leaderboard(){
     }
 
     const QueryLeaderboardRankingsData = async (): Promise<RankingsTableData[]> => {
-        const result = await client.executeViewFunction({
-            address: MODULE_ADDRESS,
-            module: "leaderboard",
-            function: "query_leaderboard",
-            args: [],
-        }) as any;
-
-        const rankingstableId = result?.return_values[0]?.decoded_value?.value?.rankings?.value?.handle?.value?.id;
-        const formattedData = await fetchRankingsTableData(client,rankingstableId);
+        try {
+            const result = await client.executeViewFunction({
+                address: MODULE_ADDRESS,
+                module: "leaderboard",
+                function: "query_leaderboard",
+                args: [],
+            }) as any;
     
-        return formattedData
+            if (!result?.return_values?.[0]?.decoded_value?.value?.rankings?.value?.handle?.value?.id) {
+                console.error('查询返回数据格式异常:', result);
+                throw new Error('数据格式错误');
+            }
+    
+            const rankingstableId = result.return_values[0].decoded_value.value.rankings.value.handle.value.id;
+            const formattedData = await fetchRankingsTableData(client, rankingstableId);
+            
+            return formattedData;
+        } catch (error) {
+            console.error('查询排行榜数据失败:', error);
+            throw error;
+        }
     }
 
     const QueryLeaderboardRankings = async (): Promise<{ addresses: string[], ranks: number[] }> => {
