@@ -13,7 +13,7 @@ export function Raffle(){
         const txn = new Transaction();
         txn.callFunction({
             address: MODULE_ADDRESS,
-            module: "raffle",
+            module: "raffle_v2",
             function: "get_check_in_raffle_by_fate",
             args: [],
         });
@@ -30,7 +30,7 @@ export function Raffle(){
         });
     
         const filterCheckInRaffleEvents = (events: PaginatedIndexerEventViews) => {
-            const targetEventType = `${MODULE_ADDRESS}::raffle::CheckInRaffleEmit`;
+            const targetEventType = `${MODULE_ADDRESS}::raffle_v2::CheckInRaffleEmit`;
             return events.data.filter((event: { event_type: string; }) => event.event_type === targetEventType);
         };
     
@@ -42,7 +42,7 @@ export function Raffle(){
         const txn = new Transaction();
         txn.callFunction({
             address: MODULE_ADDRESS,
-            module: "raffle",
+            module: "raffle_v2",
             function: "claim_max_raffle",
             args: [],
         });
@@ -53,10 +53,11 @@ export function Raffle(){
     const QueryCheckInRaffle = async(): Promise<CheckInRaffle> => {
         const result = await client.executeViewFunction({
             address: MODULE_ADDRESS,
-            module: "raffle",
+            module: "raffle_v2",
             function: "query_check_in_raffle_view",
             args: [],
         }) as any;
+        console.log(result?.return_values[0]?.decoded_value?.value);
         return result?.return_values[0]?.decoded_value?.value;
     }
 
@@ -64,12 +65,13 @@ export function Raffle(){
         const address = currentAddress?.genRoochAddress().toHexAddress() || "";
         const result = await client.executeViewFunction({
             address: MODULE_ADDRESS,
-            module: "raffle",
+            module: "raffle_v2",
             function: "query_check_in_raffle_record_view",
             args: [
                 Args.address(address),
             ],
         }) as any;
+        console.log(result?.return_values[0]?.decoded_value?.value);
         return result?.return_values[0]?.decoded_value?.value;
     }
 
