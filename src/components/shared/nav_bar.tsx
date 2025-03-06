@@ -44,14 +44,8 @@ export function NavBar() {
         </Box>
         
         <Box sx={{ 
-          display: 'flex', 
-          backgroundColor: 'rgba(255, 255, 255, 0.2)',
-          backdropFilter: 'blur(10px)',
-          borderRadius: '50px',
-          padding: '4px',
+          display: 'flex',
           margin: '0 auto',
-          transform: 'translateZ(0)', 
-          willChange: 'transform' 
         }}>
           {navItems.map((item) => (
             <Button
@@ -59,18 +53,26 @@ export function NavBar() {
               onClick={() => handleNavigation(item.path)}
               sx={{
                 color: activePage === item.path ? '#000' : 'rgba(0, 0, 0, 0.6)',
-                backgroundColor: activePage === item.path ? 'rgba(255, 255, 255, 0.9)' : 'transparent',
-                borderRadius: '50px',
                 margin: '0 4px',
                 padding: '6px 16px',
                 fontWeight: activePage === item.path ? 'bold' : 'normal',
-                transition: 'all 0.2s ease', 
-                transform: 'translateZ(0)', 
+                position: 'relative',
+                transition: 'all 0.2s ease',
                 '&:hover': {
-                  backgroundColor: activePage === item.path 
-                    ? 'rgba(255, 255, 255, 0.9)' 
-                    : 'rgba(255, 255, 255, 0.3)'
-                }
+                  backgroundColor: 'transparent',
+                  color: '#000'
+                },
+                '&::after': activePage === item.path ? {
+                  content: '""',
+                  position: 'absolute',
+                  bottom: 0,
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: '30%',
+                  height: '2px',
+                  backgroundColor: '#000',
+                  borderRadius: '2px'
+                } : {}
               }}
             >
               {item.name}

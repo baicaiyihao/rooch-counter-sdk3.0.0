@@ -69,40 +69,37 @@ function App() {
 
   useEffect(() => {
     const fetchPoolInfo = async () => {
-      try {
-        const poolData = await QueryStakePoolInfo();
-        setPoolInfo(poolData);
-      } catch (error) {
-        console.error('获取质押池信息失败:', error);
+      if (currentAddress) {
+        try {
+          const info = await QueryStakePoolInfo();
+          console.log('质押池信息:', info); // 添加日志查看数据
+          setPoolInfo(info);
+        } catch (error) {
+          console.error("获取质押池信息失败:", error);
+        }
       }
     };
+    
     fetchPoolInfo();
-  }, []);
-
+  }, [currentAddress]);
 
   useEffect(() => {
     if (!poolInfo?.end_time) return;
-
     const updateCountdown = () => {
       const now = Math.floor(Date.now() / 1000);
       const endTime = parseInt(poolInfo.end_time);
       const diff = endTime - now;
-
       if (diff <= 0) {
         setTimeRemaining('活动已结束');
         return;
       }
-
       const days = Math.floor(diff / (24 * 60 * 60));
       const hours = Math.floor((diff % (24 * 60 * 60)) / (60 * 60));
       const minutes = Math.floor((diff % (60 * 60)) / 60);
-      const seconds = diff % 60;
-
-      setTimeRemaining(`${days}天 ${hours}时 ${minutes}分 ${seconds}秒`);
+      setTimeRemaining(`${days}天 ${hours}时 ${minutes}分`);
     };
-
     updateCountdown();
-    const timer = setInterval(updateCountdown, 1000);
+    const timer = setInterval(updateCountdown, 60000); // 每分钟更新
     return () => clearInterval(timer);
   }, [poolInfo]);
 
@@ -165,10 +162,9 @@ function App() {
   return (
     <>
       <AnimatedBackground />
-      <ParticlesBackground/>
       <NavBar />
       <Container
-       className="app-container"  style={{ maxWidth: '100%', padding: '0 16px',position:'relative',zIndex: 1,
+       className="app-container"  style={{ maxWidth: '100%', padding: '0 24px',position:'relative',zIndex: 1,
         backdropFilter: 'blur(10px)',
         backgroundColor: 'rgba(255, 255, 255, 0.3)', transition: 'backdrop-filter 0.3s ease'}}>
         <Stack 
@@ -179,37 +175,14 @@ function App() {
        alignItems: "stretch",
        width: '100%',
        position: 'relative',
-       overflow: 'visible'
+       overflow: 'visible',
+       padding: '0 16px',
      }}
     >
       <div className="navigation-wrapper" style={{ width: '100%' }}>
         <GridNavigation cards={navigationCards} defaultHeight="550px" fullWidth={false} />
       </div>
     </Stack>
-        {/* <Flex
-          style={{ flexDirection: "column", alignItems: "center", gap: 10 }}
-        >
-          <Text style={{ fontSize: 100 }}>
-            {data?.return_values
-              ? (data.return_values[0].decoded_value as string)
-              : 0}
-          </Text>
-          <SessionKeyGuard onClick={handlerIncrease}>
-            <Button disabled={loading || isPending}>Increment</Button>
-          </SessionKeyGuard>
-          {error && (
-            <>
-              <Text>
-                Please refer to the contract published by readme before trying
-                again.
-              </Text>
-              <Text>
-                If you have published a contract, enter the contract address
-                correctly into devCounterAddress.
-              </Text>
-            </>
-          )}
-        </Flex> */}
       </Container>
     </>
   );
