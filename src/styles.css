@@ -42,14 +42,16 @@ h6 {
 
 /* App 组件样式 */
 .app-header {
-    position: sticky;
+    position: fixed;  
     top: 0;
-    padding: 0.5rem 1rem;
-    border-bottom: 1px solid var(--gray-a2);
-    background-color: rgba(255, 255, 255, 0.5);
-    backdrop-filter: blur(5px);
-    z-index: 10;
-  }
+    left: 0;
+    right: 0;
+    padding: 1rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    background-color: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(8px);
+    z-index: 100;  
+}
   
 /* .app-header {
     position: sticky;
@@ -64,15 +66,20 @@ h6 {
     z-index: 10;
   } */
   
-  .app-container {
-    margin-top: 1.25rem;
+  
+.app-container {
+    margin-top: 5rem;  
     padding-top: 0.5rem;
     padding-left: 1rem;
     padding-right: 1rem;
     width: 100%;
-    min-height: 500px;
+    min-height: calc(100vh - 5rem);  
     max-width: 100% !important;
-  }
+    background-color: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+    position: relative;
+    z-index: 1;
+}
   
   .navigation-wrapper {
     width: 100%;
@@ -87,13 +94,14 @@ h6 {
   }
 
   .nav-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-}
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
 
 @media (max-width: 768px) {
   .nav-container {

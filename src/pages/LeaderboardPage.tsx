@@ -10,16 +10,16 @@ import {
   TextField, 
   Typography, 
   styled, 
+  Container
 } from '@mui/material';
 import { Leaderboard } from '../componnents/leaderboard';
 import { UserNft } from '../componnents/usernft';
-import { useCurrentAddress, useRoochClient } from '@roochnetwork/rooch-sdk-kit';
+import { useCurrentAddress, useRoochClient, SessionKeyGuard} from '@roochnetwork/rooch-sdk-kit';
 import { RankTiersTableData } from '../type';
 import { getCoinDecimals, formatBalance } from '../utils/coinUtils';
 import { FATETYPE } from '../config/constants';
 import { motion } from 'framer-motion';
-import {AnimatedBackground} from '../components/shared/animation_components'
-import { NavBar } from '../components/shared/nav_bar';
+import { Layout } from '../components/shared/layout';
 
 
 // Custom card styling
@@ -136,11 +136,23 @@ export default function LeaderboardPage() {
     if (!currentAddress || !client) return;
     
     try {
+       console.log('开始获取余额...');
         const decimals = await getCoinDecimals(client, FATETYPE);
+        console.log('获取到 decimals:', decimals);
+
         const balance = await client.getBalance({
             owner: currentAddress?.genRoochAddress().toHexAddress() || "",
             coinType: FATETYPE
         }) as any;
+        console.log('原始余额数据:', balance);
+
+        if (!balance?.balance) {
+          console.warn('余额返回值异常:', balance);
+          setFateBalance('0');
+          return;
+      }
+        const formattedBalance = formatBalance(balance.balance, decimals);
+        console.log('格式化后的余额:', formattedBalance);
         setFateBalance(formatBalance(balance?.balance, decimals));
     } catch (error) {
         console.error('获取 FATE 余额失败:', error);
@@ -150,37 +162,56 @@ export default function LeaderboardPage() {
 
   // Fetch data on component mount
   useEffect(() => {
-    fetchRankingsData();
-    fetchUserNftData();
-    fetchFateBalance();
-  }, []);
+    if (currentAddress && client) {  
+      fetchRankingsData();
+      fetchUserNftData();
+      fetchFateBalance();
+    }
+  }, [currentAddress, client]); 
 
   // Handle burn action
   const handleBurn = async () => {
     if (!burnAmount || isNaN(Number(burnAmount))) {
-      alert('Please enter a valid amount');
+      alert('请输入有效数量');
       return;
     }
-
+  
     try {
-      await Burnfate(Number(burnAmount));
-      alert('Burn successful');
-      await Promise.all([
-        fetchRankingsData(),
-        fetchUserNftData(),
-        fetchFateBalance()
-    ]);
-    setBurnAmount('');
+      // 保存当前燃烧数量用于显示
+      const amountToBurn = Number(burnAmount);
+      
+      // 清空输入框，防止重复提交
+      setBurnAmount('');
+      
+      // 执行燃烧操作
+      await Burnfate(amountToBurn);
+  
+      // 等待交易确认后再刷新数据
+      setTimeout(async () => {
+        try {
+          // 并行请求更新数据
+          await Promise.all([
+            fetchFateBalance(),
+            fetchRankingsData(),
+            fetchUserNftData()
+          ]);
+          
+          // 成功提示
+          alert(`成功燃烧 ${amountToBurn} FATE`);
+        } catch (error) {
+          console.error('数据刷新失败:', error);
+        }
+      }, 1000); 
+  
     } catch (error) {
-      console.error('Burn failed:', error);
-      alert('Burn failed');
+      console.error('燃烧失败:', error);
+      setBurnAmount(burnAmount);
     }
   };
 
   return (
-    <>
-      {/* <AnimatedBackground /> */}
-      <NavBar />
+    <Layout>
+      <Container className="app-container">
       <Stack
         className="font-sans"
         direction="column"
@@ -232,11 +263,14 @@ export default function LeaderboardPage() {
                       sx={{ width: 200 }}
                     />
                     <Typography color="text.secondary">当前 FATE 余额: {fateBalance}</Typography>
-                    <StyledButton variant="contained" color="primary" onClick={handleBurn}  disabled={!burnAmount || 
+                    <SessionKeyGuard onClick={handleBurn}>
+                    <StyledButton variant="contained" color="primary"  disabled={!burnAmount || 
                                     Number(burnAmount) <= 0 || 
                                     Number(burnAmount) > Number(fateBalance)}>
                       燃烧
                     </StyledButton>
+                    </SessionKeyGuard>
+                    
                   </Stack>
                 </Stack>
               </CardContent>
@@ -280,6 +314,7 @@ export default function LeaderboardPage() {
           </Grid>
         </Grid>
       </Stack>
-    </>
+      </Container>
+      </Layout>
   );
 };

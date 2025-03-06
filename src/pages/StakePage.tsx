@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { LoadingButton } from "@mui/lab";
-import { Button, Card, CardContent, Typography, Box, Chip, Grid, Zoom, Alert, Stack } from "@mui/material";
+import { Container, Card, CardContent, Typography, Box, Chip, Grid, Zoom, Alert, Stack } from "@mui/material";
 import { StakeByGrowVotes } from '../componnents/stake_by_grow_votes';
 import { styled } from "@mui/material/styles";
 import { keyframes } from "@emotion/react";
@@ -10,8 +10,7 @@ import useWindowSize from 'react-use/lib/useWindowSize';
 import { useCurrentAddress, useCurrentWallet, useRoochClient, SessionKeyGuard} from '@roochnetwork/rooch-sdk-kit';
 import { getCoinDecimals, formatBalance } from '../utils/coinUtils';
 import { FATETYPE } from '../config/constants';
-import {AnimatedBackground} from '../components/shared/animation_components'
-import { NavBar } from '../components/shared/nav_bar';
+import { Layout } from '../components/shared/layout';
 
 
 // 奖励闪光效果
@@ -118,6 +117,7 @@ export default function StakePage() {
     try {
       await UpdateGrowVotes();
       const stakeData = await GetStakeInfo();
+      console.log("stakeData",stakeData);
       setStakeInfo(stakeData);
       setHasVotes(true);
     } catch (error) {
@@ -192,11 +192,22 @@ export default function StakePage() {
     if (loading) return;
     setLoading(true);
     try {
+      const rewardAmount = stakeInfo?.accumulated_fate || 0;
       await ClaimRewords();
-      await Promise.all([fetchUserInfo(), fetchFateBalance()]);
+
+      // 先显示成功消息，再刷新数据
       setShowSuccess(true);
+      setStakeInfo(prev => ({
+        ...prev,
+        accumulated_fate: rewardAmount // 临时保存已领取的数额，用于显示
+      }));
       setJustStaked(true);
-      setTimeout(() => setShowSuccess(false), 3000);
+
+      setTimeout(() => {
+        Promise.all([fetchUserInfo(), fetchFateBalance()]);
+        setShowSuccess(false);
+      }, 3000);
+
     } catch (error) {
       console.error('领取奖励失败:', error);
     } finally {
@@ -205,30 +216,30 @@ export default function StakePage() {
   };
 
   const renderSuccessMessage = () => (
-    <Box
-      sx={{
-        position: 'fixed',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-        borderRadius: 2,
-        p: 4,
-        boxShadow: 3,
-        zIndex: 1000,
-        textAlign: 'center',
-        animation: `${keyframes`0% {transform: scale(0.5); opacity: 0;} 50% {transform: scale(1.2);} 100% {transform: scale(1); opacity: 1;}`} 0.5s ease forwards`,
-      }}
-    >
-      <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ duration: 0.5 }}>
-        <Typography variant="h1" sx={{ fontSize: '4rem', color: '#4CAF50' }}>✓</Typography>
-      </motion.div>
-      <Typography variant="h4" sx={{ mb: 2, fontWeight: 'bold' }}>操作成功!</Typography>
-      <Typography variant="body1" color="text.secondary">
-        {stakeInfo?.accumulated_fate ? `已领取 ${stakeInfo.accumulated_fate} FATE` : '质押完成'}
-      </Typography>
-    </Box>
-  );
+  <Box
+    sx={{
+      position: 'fixed',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+      borderRadius: 2,
+      p: 4,
+      boxShadow: 3,
+      zIndex: 1000,
+      textAlign: 'center',
+      animation: `${keyframes`0% {transform: scale(0.5); opacity: 0;} 50% {transform: scale(1.2);} 100% {transform: scale(1); opacity: 1;}`} 0.5s ease forwards`,
+    }}
+  >
+    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ duration: 0.5 }}>
+      <Typography variant="h1" sx={{ fontSize: '4rem', color: '#4CAF50' }}>✓</Typography>
+    </motion.div>
+    <Typography variant="h4" sx={{ mb: 2, fontWeight: 'bold' }}>操作成功!</Typography>
+    <Typography variant="body1" color="text.secondary">
+      {stakeInfo?.accumulated_fate ? `已领取 ${stakeInfo.accumulated_fate} FATE` : '质押完成'}
+    </Typography>
+  </Box>
+);
 
   const renderPoolInfoCard = () => (
     <StyledCard elevation={3}>
@@ -379,9 +390,8 @@ export default function StakePage() {
   };
 
   return (
-    <>
-      {/* <AnimatedBackground /> */}
-      <NavBar />
+    <Layout>
+      <Container className="app-container">
       {justStaked && (
         <Confetti
           width={width}
@@ -423,6 +433,7 @@ export default function StakePage() {
           </Grid>
         </Grid>
       </Stack>
-    </>
+    </Container>
+    </Layout>
   );
 }

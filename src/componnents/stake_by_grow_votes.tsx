@@ -94,7 +94,6 @@ export function StakeByGrowVotes(){
             function: "query_project_name",
             args: [],
         }) as any;
-        console.log(result);
         return result?.return_values[0]?.decoded_value;
     }
 

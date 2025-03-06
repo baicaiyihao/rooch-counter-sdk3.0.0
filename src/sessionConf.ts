@@ -1,7 +1,7 @@
 import { getRoochNodeUrl } from '@roochnetwork/rooch-sdk'
 import { createNetworkConfig } from "@roochnetwork/rooch-sdk-kit"
 
-import { MODULE_ADDRESS,DEVNET_COUNTER_PACKAGE_ID, MAINNET_COUNTER_PACKAGE_ID } from './constants.ts'
+import { MODULE_ADDRESS} from './constants.ts'
 
 const { networkConfig, useNetworkVariable, useNetworkVariables } =
   createNetworkConfig({

@@ -1,5 +1,5 @@
 import { LoadingButton } from "@mui/lab";
-import { Button, Card, CardContent, Divider, Stack, Typography, Box, Chip, Container, Grid, Fade, Zoom } from "@mui/material";
+import { Card, CardContent, Stack, Typography, Box, Chip, Container, Grid, Fade, Zoom } from "@mui/material";
 import { useCurrentAddress ,SessionKeyGuard} from "@roochnetwork/rooch-sdk-kit";
 import { useState, useEffect } from "react";
 import { CheckIn } from '../componnents/check_in';
@@ -8,8 +8,7 @@ import { keyframes } from "@emotion/react";
 import { motion } from "framer-motion";
 import Confetti from 'react-confetti';
 import useWindowSize from 'react-use/lib/useWindowSize';
-import {AnimatedBackground} from '../components/shared/animation_components'
-import { NavBar } from '../components/shared/nav_bar';
+import { Layout } from '../components/shared/layout';
 
 // 自定义卡片样式
 const StyledCard = styled(Card)`
@@ -199,15 +198,8 @@ function CheckInPage() {
     new Date(Number(checkInRecord.last_sign_in_timestamp) * 1000).toDateString() === new Date().toDateString();
 
   return (
-    <>
-      {/* <AnimatedBackground /> */}
-      <NavBar /> 
-      {/*暂时去除 添加浮动粒子 */}
-      {/* <Particle size={15} top="10%" left="10%" delay={0} />
-      <Particle size={20} top="20%" left="80%" delay={1} />
-      <Particle size={12} top="70%" left="15%" delay={2} />
-      <Particle size={18} top="40%" left="60%" delay={1.5} />
-      <Particle size={10} top="80%" left="75%" delay={0.5} /> */}
+    <Layout>
+      <Container className="app-container">
       
       {/* 签到成功时显示彩花效果 */}
       {justCheckedIn && (
@@ -315,7 +307,7 @@ function CheckInPage() {
                     </Box>
                   </Stack>
                 ) : (
-                  <Typography>加载签到记录中...</Typography>
+                  <Typography>--</Typography>
                 )}
               </CardContent>
             </StyledCard>
@@ -373,7 +365,7 @@ function CheckInPage() {
           </Grid>
         </Grid>
 
-        <Stack direction="row" spacing={3} justifyContent="center" className="mt-4">
+        <Stack direction="row" spacing={3} justifyContent="center" className="mt-4"  style={{ marginTop: '30px' }}>
           
         <SessionKeyGuard onClick={onCheckIn}>
         <StyledButton
@@ -411,7 +403,8 @@ function CheckInPage() {
           </Fade>
         )}
       </Stack>
-    </>
+      </Container>
+      </Layout>
   );
 }
 

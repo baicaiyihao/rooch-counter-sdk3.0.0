@@ -1,5 +1,5 @@
 
-import { Grid, Paper, Typography, Box } from "@mui/material";
+import { Grid, Paper } from "@mui/material";
 import { keyframes } from "@emotion/react";
 import { styled } from "@mui/material/styles";
 import { motion } from "framer-motion"; 
@@ -8,17 +8,29 @@ import { CardBody, CardContainer, CardItem } from "../components/ui/3d-card";
 
 // 定义浮动动画
 const float = keyframes`
-  0% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-  100% {
-    transform: translateY(0px);
-  }
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
 `;
 
+const Card = styled(motion.div)`
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+  padding: 24px;
+  height: 100%;
+  width: 100%;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  animation: ${float} 6s ease-in-out infinite;
+  
+  &:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+  }
+`;
 // 创建带有浮动动画的Paper组件
 const AnimatedPaper = styled(Paper)`
   transition: all 0.3s ease;
@@ -76,6 +88,12 @@ export interface NavigationCard {
     totalDays?: number;
     nextReward?: string;
     isCheckedInToday?: boolean;
+    stats?: Array<{
+      label: string;
+      value: string;
+      icon: string;
+    }>;
+    countdown?: string;
   };
 }
 
@@ -95,99 +113,56 @@ export function GridNavigation({
   xs = 12, 
   sm = 6, 
   md = 6, 
-  lg = 6 ,
-  defaultHeight = '180px' ,// 设置默认高度
+  lg = 6,
+  defaultHeight = '180px',
   fullWidth = false
 }: GridNavigationProps) {
   return (
-    <div 
-    style={{ 
-      width: '100%',  // 修改为始终100%
-      position: 'relative',
-      boxSizing: 'border-box',
-      overflow: 'hidden'  // 防止溢出
-    }}
-  >
-    <Grid container spacing={3} className="mb-8" sx={{ width: '100%', margin: '0 auto', maxWidth: 'none' }}>
-    {cards.map((card, index) => (
-      <Grid 
-        item 
-        xs={card.width?.xs || xs} 
-        sm={card.width?.sm || sm} 
-        md={card.width?.md || md} 
-        lg={card.width?.lg || lg} 
-        key={index}
-      >
-        <CardContainer className="w-full h-full" onClick={card.onClick}>
-          <CardBody className={cn(
-            "backdrop-filter backdrop-blur-md bg-white/30 border border-white/40 rounded-xl shadow-md hover:shadow-xl transition-all duration-300",
-            "flex flex-col justify-start items-start p-6 relative overflow-hidden",
-            "w-full h-full"  
-         )}
-         style={{ minHeight: card.height || defaultHeight, width: '100%'  }}
-         >
-           {/* 移除原有的背景渐变效果 */}
-           {/* <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 to-purple-50 opacity-50"></div> */}
-            {/* 背景渐变效果 */}
-          {/* 添加新的玻璃态效果 */}
-           <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-white/20 rounded-xl"></div>            
-            {/* 卡片内容 */}
-            <CardItem
-              translateZ="50"
-              className="text-2xl mb-2 relative z-10"
+    <div style={{ width: '100%', position: 'relative', boxSizing: 'border-box', overflow: 'hidden' }}>
+      <Grid container spacing={3} className="mb-8" sx={{ width: '100%', margin: '0 auto', maxWidth: 'none' }}>
+        {cards.map((card, index) => (
+          <Grid 
+            item 
+            xs={card.width?.xs || xs} 
+            sm={card.width?.sm || sm} 
+            md={card.width?.md || md} 
+            lg={card.width?.lg || lg} 
+            key={index}
+          >
+            <Card
+              onClick={card.onClick}
+              style={{ minHeight: card.height || defaultHeight }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: index * 0.1 }}
             >
-              {card.icon}
-            </CardItem>
-            
-            <CardItem
-              translateZ="60"
-              className="text-xl font-bold mb-2 relative z-10"
-            >
-              {card.title}
-            </CardItem>
-            
-            <CardItem
-              translateZ="40"
-              className="text-gray-600 text-sm relative z-10"
-            >
-              {card.description}
-            </CardItem>
+              <div className="relative z-10">
+                <div className="text-2xl mb-2">{card.icon}</div>
+                <div className="text-xl font-bold mb-2">{card.title}</div>
+                <div className="text-gray-600 text-sm">{card.description}</div>
 
-            {/* 显示签到额外信息 */}
-            {card.extraContent && (
-              <CardItem translateZ="70" className="mt-4 w-full relative z-10">
-                {card.extraContent.isCheckedInToday ? (
-                  <motion.div
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <PulseBadge
-                      className="bg-green-500"
-                      animate={{ 
-                        boxShadow: ["0px 0px 0px rgba(79, 209, 127, 0.3)", "0px 0px 15px rgba(79, 209, 127, 0.6)", "0px 0px 0px rgba(79, 209, 127, 0.3)"]
-                      }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                    >
-                      ✓ 今日已签到
-                    </PulseBadge>
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <PulseBadge
-                      className="bg-blue-500 cursor-pointer"
-                      animate={{ 
-                        boxShadow: ["0px 0px 0px rgba(59, 130, 246, 0.3)", "0px 0px 15px rgba(59, 130, 246, 0.6)", "0px 0px 0px rgba(59, 130, 246, 0.3)"]
-                      }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                    >
-                      ✓ 点击签到
-                    </PulseBadge>
-                  </motion.div>
-                )}
+                {/* 签到信息部分 */}
+                {card.extraContent && (
+                  <div className="mt-4 w-full">
+                    {card.extraContent.isCheckedInToday !== undefined && (
+                      <motion.div
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ duration: 0.5 }}
+                      >
+                        <PulseBadge
+                          className={card.extraContent.isCheckedInToday ? "bg-green-500" : "bg-blue-500 cursor-pointer"}
+                          animate={{ 
+                            boxShadow: ["0px 0px 0px rgba(79, 209, 127, 0.3)", "0px 0px 15px rgba(79, 209, 127, 0.6)", "0px 0px 0px rgba(79, 209, 127, 0.3)"]
+                          }}
+                          transition={{ duration: 2, repeat: Infinity }}
+                        >
+                          {card.extraContent.isCheckedInToday ? "✓ 今日已签到" : "✓ 点击签到"}
+                        </PulseBadge>
+                      </motion.div>
+                    )}
                 
                 {card.extraContent.continueDays && (
                   <div className="mt-2 text-sm font-medium text-gray-700">
@@ -213,10 +188,55 @@ export function GridNavigation({
                     </RewardBadge>
                   </div>
                 )}
-              </CardItem>
+              </div>
             )}
-          </CardBody>
-        </CardContainer>
+
+            {card.extraContent?.stats && (
+                <div className="mt-4 space-y-3">
+                  {card.extraContent.stats.map((stat, index) => (
+                    <motion.div
+                      key={index}
+                      className="bg-white/20 rounded-lg p-3"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: index * 0.1 }}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <span>{stat.icon}</span>
+                        <span className="text-sm font-medium text-gray-600">{stat.label}</span>
+                      </div>
+                      <div className="text-lg font-bold text-indigo-600 mt-1">
+                        {stat.value}
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+            )}
+
+            {card.extraContent?.countdown && (
+              <div className="mt-4 w-full">
+                <motion.div
+                  className="bg-red-500/10 rounded-lg p-3"
+                  animate={{ 
+                    boxShadow: [
+                      "0 0 0 rgba(239, 68, 68, 0.2)",
+                      "0 0 20px rgba(239, 68, 68, 0.6)",
+                      "0 0 0 rgba(239, 68, 68, 0.2)"
+                    ]
+                  }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  <div className="text-sm font-medium text-gray-600">
+                    剩余时间
+                  </div>
+                  <div className="text-lg font-bold text-red-600 mt-1">
+                    {card.extraContent.countdown}
+                  </div>
+                </motion.div>
+              </div>
+            )}
+          </div>
+        </Card>
       </Grid>
     ))}
   </Grid>
