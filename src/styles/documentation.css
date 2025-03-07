@@ -1,0 +1,219 @@
+.documentation-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #ffffff;
+}
+
+.documentation-sidebar {
+  width: 250px;
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-right: 1px solid #e9ecef;
+  position: fixed;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.documentation-content {
+  flex: 1;
+  padding: 40px;
+  margin-left: 250px;
+  max-width: 900px;
+  font-family: "Roboto", sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.3px;
+  word-spacing: 1px;
+  font-size: 16px;
+}
+
+.sidebar-item {
+  color: #495057;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: "Roboto", sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.2px;
+  padding: 10px 15px;
+  margin: 5px 0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 17px;
+  color: #495057;
+}
+
+.sidebar-item:hover {
+  background-color: #e9ecef;
+}
+
+.sidebar-item.active {
+  background-color: #e9ecef;
+  color: #000;
+  font-weight: 500;
+}
+
+.documentation-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 18px;
+  color: #666;
+}
+
+/* 保持原有的 Markdown 样式 */
+.documentation-content h1 {
+  font-size: 2.8em;
+  margin-bottom: 1em;
+  border-bottom: 2px solid #eaecef;
+  padding-bottom: 0.3em;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.documentation-content h2 {
+  font-size: 2em;
+  margin: 1.5em 0 1em;
+  border-bottom: 1px solid #eaecef;
+  padding-bottom: 0.3em;
+  font-weight: 500;
+  letter-spacing: 0.4px;
+}
+
+.documentation-content h3 {
+  font-size: 1.5em;
+  margin: 1.2em 0 0.8em;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.documentation-content p {
+  margin: 1em 0;
+  line-height: 1.6;
+  letter-spacing: 0.3px;
+  font-size: 16px;
+}
+
+.documentation-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  margin: 1em 0;
+}
+
+.documentation-content code {
+  background-color: #f6f8fa;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 85%;
+}
+
+.documentation-content pre {
+  background-color: #f6f8fa;
+  padding: 16px;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 1em 0;
+}
+
+.documentation-content blockquote {
+  margin: 1em 0;
+  padding: 0 1em;
+  color: #6a737d;
+  border-left: 0.25em solid #dfe2e5;
+}
+
+.documentation-content ul,
+.documentation-content ol {
+  padding-left: 2em;
+  margin: 1em 0;
+}
+
+.documentation-content li {
+  margin: 0.5em 0;
+}
+
+.documentation-content table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1em 0;
+}
+
+.documentation-content table th,
+.documentation-content table td {
+  padding: 6px 13px;
+  border: 1px solid #dfe2e5;
+}
+
+.documentation-content table tr:nth-child(2n) {
+  background-color: #f6f8fa;
+}
+
+@media (max-width: 768px) {
+  .documentation-sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+  }
+
+  .documentation-content {
+    margin-left: 0;
+    padding: 20px;
+  }
+
+  .documentation-layout {
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #ffffff;
+    font-family: "Roboto", sans-serif;
+  }
+}
+
+.sidebar-subitem {
+  padding: 6px 15px 6px 30px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #666;
+  transition: all 0.2s ease;
+  opacity: 0;
+  height: 0;
+  overflow: hidden;
+  font-family: "Roboto", sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.2px;
+  margin: 2px 0;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.sidebar-item.active + .sidebar-subitems .sidebar-subitem {
+  opacity: 1;
+  height: auto;
+  overflow: visible;
+}
+
+.sidebar-subitem:hover {
+  background-color: #f0f0f0;
+  color: #000;
+}
+
+.sidebar-subitem.level-1 {
+  padding-left: 30px;
+  font-weight: 500;
+}
+
+.sidebar-subitem.level-2 {
+  padding-left: 45px;
+  font-size: 14px;
+}
+
+.sidebar-subitem.level-3 {
+  padding-left: 60px;
+  font-size: 14px;
+}
+
+.sidebar-subitems {
+  transition: all 0.3s ease;
+}

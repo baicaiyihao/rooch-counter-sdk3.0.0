@@ -9,7 +9,8 @@ const navItems = [
   { name: 'STAKE', path: '/stake' },
   { name: 'CHECK IN', path: '/check-in' },
   { name: 'RAFFLE', path: '/raffle' },
-  { name: 'LEADERBOARD', path: '/leaderboard' }
+  { name: 'LEADERBOARD', path: '/leaderboard' },
+  { name: 'DOCS', path: '/docs' }
 ];
 
 export function NavBar() {
