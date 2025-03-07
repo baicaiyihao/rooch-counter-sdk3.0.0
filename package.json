@@ -37,12 +37,14 @@
     "react-use": "^17.6.0",
     "rehype-raw": "^7.0.0",
     "remark-gfm": "^4.0.1",
+    "react-virtualized": "^9.22.6",
     "tailwind-merge": "^3.0.2",
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
+    "@types/react-virtualized": "^9.22.2",
     "@typescript-eslint/eslint-plugin": "^6.1.0",
     "@typescript-eslint/parser": "^6.1.0",
     "@vitejs/plugin-react-swc": "^3.3.2",

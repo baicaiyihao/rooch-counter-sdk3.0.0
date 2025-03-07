@@ -46,7 +46,10 @@ export function Raffle(){
             function: "claim_max_raffle",
             args: [],
         });
-        return await signAndExecuteTransaction({ transaction: txn });
+        const result = await signAndExecuteTransaction({ transaction: txn });
+        console.log(result);
+        
+        return result;
     }
 
 
@@ -72,8 +75,8 @@ export function Raffle(){
             ],
         }) as any;
         const recordData = result?.return_values[0]?.decoded_value?.value;
-    console.log("当前抽奖次数:", recordData?.raffle_count || 0, "/50");
-    return recordData;
+        console.log("当前抽奖次数:", recordData?.raffle_count || 0, "/50");
+        return recordData;
     }
 
     return {

@@ -307,7 +307,7 @@ function CheckInPage() {
                     </Box>
                   </Stack>
                 ) : (
-                  <Typography>--</Typography>
+                  <Typography>未查询到签到信息，请先进行签到。</Typography>
                 )}
               </CardContent>
             </StyledCard>
