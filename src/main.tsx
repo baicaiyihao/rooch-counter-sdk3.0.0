@@ -15,6 +15,7 @@ import { networkConfig } from "./networks";
 import App from './App';
 import { ErrorGuard } from "./ErrorGuard.tsx";
 import { MODULE_ADDRESS } from './constants.ts'
+import { Documentation } from './pages/DocumentationPage';
 
 const queryClient = new QueryClient();
 
@@ -40,7 +41,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
               <Route path="/raffle" element={<RafflePage/>} />
               <Route path="/stake" element={<StakePage/>} />
               <Route path="/leaderboard" element={<LeaderboardPage/>} />
-
+              <Route path="/docs" element={<Documentation />} />
             </Routes>
           </BrowserRouter>
               </WalletProvider>
