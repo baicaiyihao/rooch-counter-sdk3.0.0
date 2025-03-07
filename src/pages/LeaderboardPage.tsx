@@ -14,8 +14,8 @@ import {
   Tooltip,
   IconButton,
 } from "@mui/material";
-import { Leaderboard } from "../componnents/leaderboard";
-import { UserNft } from "../componnents/usernft";
+import { Leaderboard } from "../components/leaderboard";
+import { UserNft } from "../components/usernft";
 import {
   useCurrentAddress,
   useRoochClient,
@@ -25,7 +25,7 @@ import { RankTiersTableData } from "../type";
 import { getCoinDecimals, formatBalance } from "../utils/coinUtils";
 import { FATETYPE } from "../config/constants";
 import { motion } from "framer-motion";
-import { Layout } from "../components/shared/layout";
+import { Layout } from "../uicomponents/shared/layout";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 
 

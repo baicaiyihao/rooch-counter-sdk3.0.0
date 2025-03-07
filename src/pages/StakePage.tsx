@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { LoadingButton } from "@mui/lab";
 import { Container, Card, CardContent, Typography, Box, Chip, Grid, Zoom, Alert, Stack } from "@mui/material";
-import { StakeByGrowVotes } from '../componnents/stake_by_grow_votes';
+import { StakeByGrowVotes } from '../components/stake_by_grow_votes';
 import { styled } from "@mui/material/styles";
 import { keyframes } from "@emotion/react";
 import { motion } from "framer-motion";
@@ -10,7 +10,7 @@ import useWindowSize from 'react-use/lib/useWindowSize';
 import { useCurrentAddress, useCurrentWallet, useRoochClient, useCurrentSession, SessionKeyGuard} from '@roochnetwork/rooch-sdk-kit';
 import { getCoinDecimals, formatBalance } from '../utils/coinUtils';
 import { FATETYPE } from '../config/constants';
-import { Layout } from '../components/shared/layout';
+import { Layout } from '../uicomponents/shared/layout';
 import { CircularProgress } from '@mui/material'; 
 
 // 奖励闪光效果

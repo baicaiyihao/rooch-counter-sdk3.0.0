@@ -7,7 +7,7 @@ import { Container} from "@mui/material";
 import rehypeRaw from 'rehype-raw';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { Layout } from '../components/shared/layout';
+import { Layout } from '../uicomponents/shared/layout';
 
 const docFiles = [
     '1.What is FateX.md',

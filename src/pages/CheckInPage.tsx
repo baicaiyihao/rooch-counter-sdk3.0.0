@@ -2,13 +2,13 @@ import { LoadingButton } from "@mui/lab";
 import { Card, CardContent, Stack, Typography, Box, Chip, Container, Grid, Fade, Zoom } from "@mui/material";
 import { useCurrentAddress ,SessionKeyGuard} from "@roochnetwork/rooch-sdk-kit";
 import { useState, useEffect } from "react";
-import { CheckIn } from '../componnents/check_in';
+import { CheckIn } from '../components/check_in';
 import { styled } from "@mui/material/styles";
 import { keyframes } from "@emotion/react";
 import { motion } from "framer-motion";
 import Confetti from 'react-confetti';
 import useWindowSize from 'react-use/lib/useWindowSize';
-import { Layout } from '../components/shared/layout';
+import { Layout } from '../uicomponents/shared/layout';
 
 // 自定义卡片样式
 const StyledCard = styled(Card)`
