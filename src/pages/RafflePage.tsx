@@ -11,11 +11,13 @@ import {
   Grid,
   Fade,
   Zoom,
-  Snackbar,
   Tooltip,
   IconButton,
 } from "@mui/material";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import {
   useCurrentAddress,
   SessionKeyGuard,
@@ -25,19 +27,24 @@ import {
 import { useState, useEffect } from "react";
 import { Raffle } from "../components/raffle";
 import { styled } from "@mui/material/styles";
+import { keyframes } from "@emotion/react";
+import { motion } from "framer-motion";
 import Confetti from "react-confetti";
 import useWindowSize from "react-use/lib/useWindowSize";
 import { Layout } from "../uicomponents/shared/layout";
 import { formatBalance, getCoinDecimals } from "../utils/coinUtils";
 import { FATETYPE } from "../config/constants";
 
+// 定义 props 类型
+interface RaffleMessageMessageProps {
+  type: "success" | "error";
+}
+
 // Custom card style
 const StyledCard = styled(Card)`
   border-radius: 16px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
   overflow: hidden;
   background-color: rgba(255, 255, 255, 0.9);
 
@@ -61,24 +68,78 @@ const StyledButton = styled(LoadingButton)`
   }
 `;
 
+// 创建 styled 组件
+const RaffleMessage = styled(Box)<RaffleMessageMessageProps>(({ type }) => ({
+  position: "fixed",
+  top: "20px",
+  left: "20px",
+  backgroundColor: type === "success" ? "rgba(46, 125, 50, 0.95)" : "rgba(211, 47, 47, 0.95)",
+  color: "white",
+  borderRadius: "12px",
+  padding: "1.5rem",
+  boxShadow: "0 8px 20px rgba(0, 0, 0, 0.15)",
+  zIndex: 1000,
+  textAlign: "center",
+  width: "90%",
+  maxWidth: "300px",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+  alignItems: "center",
+}));
+
+// Shine animation for the prize chip
+const shineAnimation = keyframes`
+  0% {
+    background-position: -100px;
+  }
+  40% {
+    background-position: 200px;
+  }
+  100% {
+    background-position: 200px;
+  }
+`;
+
+const ShiningChip = styled(Chip)`
+  position: relative;
+  overflow: hidden;
+  &::after {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+      to right,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.3) 50%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    transform: rotate(30deg);
+    animation: ${shineAnimation} 2s infinite;
+  }
+`;
+
 function RafflePage() {
   const currentAddress = useCurrentAddress();
-  const currentSession = useCurrentSession();
   const [loading, setLoading] = useState(false);
   const [raffleConfig, setRaffleConfig] = useState<any>(null);
   const [raffleRecord, setRaffleRecord] = useState<any>(null);
-  const [justRaffled, setJustRaffled] = useState(false);
   const [fateBalance, setFateBalance] = useState<string>("0");
-  const { width, height } = useWindowSize();
-  const client = useRoochClient();
-
-
-  // Snackbar 状态
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">(
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [messageOpen, setMessageOpen] = useState(false);
+  const [messageType, setMessageType] = useState<"success" | "error">(
     "success"
   );
+  const [messageText, setMessageText] = useState("");
+  const [prizeDetails, setPrizeDetails] = useState<{
+    name: string;
+    duration: number;
+  } | null>(null);
+  const { width, height } = useWindowSize();
+  const client = useRoochClient();
 
   const {
     GetCheckInRaffleByFate,
@@ -87,12 +148,23 @@ function RafflePage() {
     QueryCheckInRaffleRecord,
   } = Raffle();
 
+  // Fetch data on address change
   useEffect(() => {
     if (currentAddress && client) {
       fetchData();
       fetchFateBalance();
     }
   }, [currentAddress]);
+
+  // Auto-close message after 3 seconds
+  useEffect(() => {
+    if (messageOpen) {
+      const timer = setTimeout(() => {
+        setMessageOpen(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [messageOpen]);
 
   const fetchData = async () => {
     try {
@@ -129,7 +201,7 @@ function RafflePage() {
       }
       const formattedBalance = formatBalance(balance.balance, decimals);
       console.log("格式化后的余额:", formattedBalance);
-      setFateBalance(formatBalance(balance?.balance, decimals));
+      setFateBalance(formattedBalance);
     } catch (error) {
       console.error("获取 FATE 余额失败:", error);
       setFateBalance("0");
@@ -151,33 +223,32 @@ function RafflePage() {
     if (normalizedResult <= grandWeight) {
       return {
         level: 1,
-        name: "特等奖",
+        name: "First Prize",
         duration: Number(config.grand_prize_duration),
       };
     } else if (normalizedResult <= grandWeight + secondWeight) {
       return {
         level: 2,
-        name: "二等奖",
+        name: "Second Prize",
         duration: Number(config.second_prize_duration),
       };
     } else {
       return {
         level: 3,
-        name: "三等奖",
+        name: "Third Prize",
         duration: Number(config.third_prize_duration),
       };
     }
   };
 
-  
-
   const handleFateRaffle = async () => {
     if (loading) return;
 
     if (parseInt(raffleRecord?.raffle_count || "0") >= 50) {
-      setSnackbarMessage("已达到最大抽奖次数限制（50次）");
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
+      setMessageType("error");
+      setMessageText("The maximum raffle limit (50 times) has been reached.");
+      setPrizeDetails(null);
+      setMessageOpen(true);
       return;
     }
 
@@ -187,29 +258,29 @@ function RafflePage() {
       console.log("Fate抽奖结果:", result);
 
       if (result === undefined) {
-        setSnackbarMessage("Fate余额不足或已到抽取上限");
-        setSnackbarSeverity("error");
-        setSnackbarOpen(true);
+        setMessageType("error");
+        setMessageText("Insufficient FATE balance or raffle limit has been reached.");
+        setPrizeDetails(null);
+        setMessageOpen(true);
         return;
       }
 
       const prizeLevel = getPrizeLevel(Number(result), raffleConfig);
 
       if (prizeLevel) {
-        setSnackbarMessage(
-          `恭喜获得${prizeLevel.name}！获取${prizeLevel.duration}FATE`
-        );
-        setSnackbarSeverity("success");
-        setSnackbarOpen(true);
+        setMessageType("success");
+        setMessageText(`Congratulations on winning ${prizeLevel.name}!`);
+        setPrizeDetails({ name: prizeLevel.name, duration: prizeLevel.duration });
+        setMessageOpen(true);
+        setShowConfetti(true);
       }
       await fetchData();
-      setJustRaffled(true);
-      setTimeout(() => setJustRaffled(false), 3000);
     } catch (error) {
       console.error("Fate抽奖失败:", error);
-      setSnackbarMessage("抽奖失败，请重试");
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
+      setMessageType("error");
+      setMessageText("Raffle failed, please try again.");
+      setPrizeDetails(null);
+      setMessageOpen(true);
     } finally {
       setLoading(false);
     }
@@ -222,37 +293,75 @@ function RafflePage() {
     try {
       await ClaimMaxRaffle();
       await fetchData();
-      setJustRaffled(true);
-      setSnackbarMessage("领取成功");
-      setSnackbarSeverity("success");
-      setSnackbarOpen(true);
-      setTimeout(() => setJustRaffled(false), 3000);
+      setMessageType("success");
+      setMessageText("Reward claimed successfully, got 1000 $FATE"); // 设置具体的成功消息
+      setPrizeDetails(null); // 保底奖励不需要 prizeDetails
+      setMessageOpen(true);
     } catch (error) {
       console.error("领取保底失败:", error);
-      setSnackbarMessage("领取保底失败，请重试");
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
+      setMessageType("error");
+      setMessageText("Claim failed, please try again.");
+      setPrizeDetails(null);
+      setMessageOpen(true);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSnackbarClose = () => {
-    setSnackbarOpen(false);
-  };
-
   return (
     <Layout>
       <Container className="app-container">
-        {justRaffled && (
+        {showConfetti && (
           <Confetti
             width={width}
             height={height}
             recycle={false}
             numberOfPieces={500}
             gravity={0.1}
-            onConfettiComplete={() => setJustRaffled(false)}
+            onConfettiComplete={() => setShowConfetti(false)}
           />
+        )}
+
+        {messageOpen && (
+          <RaffleMessage type={messageType}>
+            {messageType === "success" && prizeDetails && (
+              <>
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <EmojiEventsIcon sx={{ fontSize: "4rem", color: "white" }} />
+                </motion.div>
+                <Typography variant="h4" sx={{ mb: 2, fontWeight: "bold" }}>
+                  {messageText}
+                </Typography>
+                <Typography variant="h6" sx={{ mb: 3 }}>
+                  Winning{" "}
+                  <ShiningChip
+                    label={`${prizeDetails.duration} $FATE`}
+                    sx={{ fontWeight: "bold", fontSize: "1rem", color: "white" }}
+                  />
+                </Typography>
+              </>
+            )}
+            {messageType === "error" && (
+              <>
+                <ErrorOutlineIcon sx={{ fontSize: "3rem", color: "white", mb: 2 }} />
+                <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+                  {messageText}
+                </Typography>
+              </>
+            )}
+            {messageType === "success" && !prizeDetails && (
+              <>
+                <CheckCircleOutlineIcon sx={{ fontSize: "3rem", color: "white", mb: 2 }} />
+                <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+                  {messageText} {/* 显示“领取成功，获得 1000 FATE” */}
+                </Typography>
+              </>
+            )}
+          </RaffleMessage>
         )}
 
         <Stack
@@ -270,7 +379,7 @@ function RafflePage() {
             className="mb-8"
           >
             <Typography variant="h4" className="font-bold">
-              抽奖活动
+            Raffle Event
             </Typography>
             <Box width={100} />
           </Stack>
@@ -288,8 +397,9 @@ function RafflePage() {
                     <Box component="span" sx={{ mr: 1, fontSize: "1.5rem" }}>
                       🎲
                     </Box>
-                    抽奖状态
-                  </Typography>
+                    Your Raffle Details
+                    </Typography>
+                    <br/>
 
                   {raffleRecord ? (
                     <Stack spacing={2}>
@@ -301,9 +411,9 @@ function RafflePage() {
                         }}
                       >
                         <Box sx={{ display: "flex", alignItems: "center" }}>
-                          <Typography>今日抽奖次数:</Typography>
+                          <Typography>Today's Raffle Attempts:</Typography>
                           <Tooltip
-                            title="每日抽奖上限次数为50次, 次日首次抽奖后刷新次数。"
+                            title="The daily raffle limit is 50 times, and the count resets after the first raffle of the next day."
                             arrow
                             placement="top"
                           >
@@ -328,9 +438,9 @@ function RafflePage() {
                         }}
                       >
                         <Box sx={{ display: "flex", alignItems: "center" }}>
-                          <Typography>累计未领保底次数:</Typography>
+                          <Typography>Total Unclaimed Guarantee Attempts:</Typography>
                           <Tooltip
-                            title="每累计10次抽奖可领取一次保底奖励，领取后此数值会减少10"
+                            title="Every 10 accumulated raffle attempts allow you to claim one guaranteed reward, and this count decreases by 10 after claiming."
                             arrow
                             placement="top"
                           >
@@ -354,7 +464,7 @@ function RafflePage() {
                           alignItems: "center",
                         }}
                       >
-                        <Typography>距下次保底还需:</Typography>
+                        <Typography>Remaining for Next Guarantee:</Typography>
                         <Zoom in={true} style={{ transitionDelay: "300ms" }}>
                           <Chip
                             label={
@@ -369,7 +479,7 @@ function RafflePage() {
                       </Box>
                     </Stack>
                   ) : (
-                    <Typography>未查询到抽奖信息，请先进行抽奖。</Typography>
+                    <Typography>No raffle information found, please start by participating in a raffle.</Typography>
                   )}
                 </CardContent>
               </StyledCard>
@@ -387,7 +497,7 @@ function RafflePage() {
                     <Box component="span" sx={{ mr: 1, fontSize: "1.5rem" }}>
                       🏆
                     </Box>
-                    奖池信息
+                    Prize Pool Info
                   </Typography>
                   {raffleConfig ? (
                     <Stack spacing={2}>
@@ -395,7 +505,7 @@ function RafflePage() {
                         variant="subtitle1"
                         className="mb-2 font-bold"
                       >
-                        奖品设置:
+                        Prize Settings:
                       </Typography>
                       <Box
                         sx={{
@@ -404,7 +514,7 @@ function RafflePage() {
                           alignItems: "center",
                         }}
                       >
-                        <Typography>特等奖:</Typography>
+                        <Typography>First Prize:</Typography>
                         <Chip
                           label={`${raffleConfig?.grand_prize_duration?.toString() || "0"} FATE`}
                           color="primary"
@@ -418,7 +528,7 @@ function RafflePage() {
                           alignItems: "center",
                         }}
                       >
-                        <Typography>二等奖:</Typography>
+                        <Typography>Second Prize:</Typography>
                         <Chip
                           label={`${raffleConfig?.second_prize_duration?.toString() || "0"} FATE`}
                           color="success"
@@ -432,7 +542,7 @@ function RafflePage() {
                           alignItems: "center",
                         }}
                       >
-                        <Typography>三等奖:</Typography>
+                        <Typography>Third Prize:</Typography>
                         <Chip
                           label={`${raffleConfig?.third_prize_duration?.toString() || "0"} FATE`}
                           color="secondary"
@@ -446,7 +556,7 @@ function RafflePage() {
                         variant="subtitle1"
                         className="mb-2 font-bold"
                       >
-                        中奖概率:
+                        Probability of Win:
                       </Typography>
                       <Box
                         sx={{
@@ -455,7 +565,7 @@ function RafflePage() {
                           alignItems: "center",
                         }}
                       >
-                        <Typography>特等奖概率:</Typography>
+                        <Typography>Probability of first Prize:</Typography>
                         <Chip
                           label={`${raffleConfig?.grand_prize_weight?.toString() || "0"}%`}
                           color="primary"
@@ -469,7 +579,7 @@ function RafflePage() {
                           alignItems: "center",
                         }}
                       >
-                        <Typography>二等奖概率:</Typography>
+                        <Typography>Probability of second prize:</Typography>
                         <Chip
                           label={`${raffleConfig?.second_prize_weight?.toString() || "0"}%`}
                           color="success"
@@ -483,7 +593,7 @@ function RafflePage() {
                           alignItems: "center",
                         }}
                       >
-                        <Typography>三等奖概率:</Typography>
+                        <Typography>Probability of third prize:</Typography>
                         <Chip
                           label={`${raffleConfig?.third_prize_weight?.toString() || "0"}%`}
                           color="secondary"
@@ -514,7 +624,7 @@ function RafflePage() {
                 loading={loading}
                 startIcon={<span>✨</span>}
               >
-                Fate抽奖
+                Raffle
               </StyledButton>
             </SessionKeyGuard>
 
@@ -527,7 +637,7 @@ function RafflePage() {
                 disabled={parseInt(raffleRecord?.raffle_count || "0") < 10}
                 startIcon={<span>🏅</span>}
               >
-                领取保底奖励
+                Claim Guaranteed
               </StyledButton>
             </SessionKeyGuard>
           </Stack>
@@ -538,63 +648,20 @@ function RafflePage() {
                 color="text.secondary"
                 sx={{ mt: 2, textAlign: "center" }}
               >
-                当前 FATE 余额:{fateBalance}
-                <br/>
-                抽奖费用:{" "}
+                $FATE Balance: {fateBalance}
+                <br />
+                Raffle Fee:{" "}
                 {(
                   (Number(raffleConfig?.grand_prize_duration || 1000) * 5 +
                     Number(raffleConfig?.second_prize_duration || 500) * 25 +
                     Number(raffleConfig?.third_prize_duration || 150) * 70) /
                   100
                 ).toFixed(2)}{" "}
-                FATE
+                $FATE
               </Typography>
             </Fade>
           )}
-
-          {/* {parseInt(raffleRecord?.raffle_count || "0") < 10 && (
-            <Fade in={true}>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ mt: 2, textAlign: "center" }}
-              >
-                再抽 {10 - parseInt(raffleRecord?.raffle_count || "0")}{" "}
-                次即可领取保底奖励！
-              </Typography>
-            </Fade>
-          )} */}
-          {/* {raffleRecord && (
-            <Fade in={true}>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ mt: 2, textAlign: "center" }}
-              >
-                {parseInt(raffleRecord?.raffle_count || "0") >= 50
-                  ? "已达到最大抽奖次数（50次）"
-                  : `剩余可抽奖次数：${
-                      50 - parseInt(raffleRecord?.daily_raffle_count || "0")
-                    }次`}
-              </Typography>
-            </Fade>
-          )} */}
         </Stack>
-
-        <Snackbar
-          open={snackbarOpen}
-          autoHideDuration={5000}
-          onClose={handleSnackbarClose}
-          anchorOrigin={{ vertical: "top", horizontal: "center" }}
-          message={snackbarMessage}
-          sx={{
-            "& .MuiSnackbarContent-root": {
-              backgroundColor:
-                snackbarSeverity === "success" ? "#2e7d32" : "#d32f2f",
-              color: "#fff",
-            },
-          }}
-        />
       </Container>
     </Layout>
   );

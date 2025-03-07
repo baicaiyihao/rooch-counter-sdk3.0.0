@@ -27,15 +27,22 @@ import { FATETYPE } from "../config/constants";
 import { motion } from "framer-motion";
 import { Layout } from "../uicomponents/shared/layout";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import { keyframes } from "@emotion/react";
+
+// 定义 props 类型
+interface LeaderboardMessageProps {
+  type: "success" | "error";
+}
+
 
 
 // Custom card styling
 const StyledCard = styled(Card)`
   border-radius: 16px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
   overflow: hidden;
   background-color: rgba(255, 255, 255, 0.9);
 
@@ -59,6 +66,38 @@ const StyledButton = styled(Button)`
   }
 `;
 
+// Slide-down animation for the message
+const slideDownAnimation = keyframes`
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+`;
+
+// 创建 styled 组件
+const LeaderboardMessage = styled(Box)<LeaderboardMessageProps>(({ type }) => ({
+  position: "fixed",
+  top: "20px",
+  left: "20px",
+  backgroundColor: type === "success" ? "rgba(46, 125, 50, 0.95)" : "rgba(211, 47, 47, 0.95)",
+  color: "white",
+  borderRadius: "12px",
+  padding: "1.5rem",
+  boxShadow: "0 8px 20px rgba(0, 0, 0, 0.15)",
+  zIndex: 1000,
+  textAlign: "center",
+  width: "90%",
+  maxWidth: "300px",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+  alignItems: "center",
+}));
+
 export default function LeaderboardPage() {
   const [rankings, setRankings] = useState<any[]>([]);
   const [userNftData, setUserNftData] = useState<any>(null);
@@ -66,10 +105,17 @@ export default function LeaderboardPage() {
   const currentAddress = useCurrentAddress();
   const [fateBalance, setFateBalance] = useState<string>("0");
   const client = useRoochClient();
-  const [timeRemaining, setTimeRemaining] = useState<string>('');
+  const [timeRemaining, setTimeRemaining] = useState<string>("");
+  const [messageOpen, setMessageOpen] = useState(false);
+  const [messageType, setMessageType] = useState<"success" | "error">("success");
+  const [messageText, setMessageText] = useState("");
 
-  const { QueryLeaderboardRankingsData, QueryLeaderboardRankTiers, QueryLeaderboardEndTimeAndTotalBurned, Burnfate } =
-    Leaderboard();
+  const {
+    QueryLeaderboardRankingsData,
+    QueryLeaderboardRankTiers,
+    QueryLeaderboardEndTimeAndTotalBurned,
+    Burnfate,
+  } = Leaderboard();
 
   const { QueryUserNft } = UserNft();
 
@@ -158,7 +204,7 @@ export default function LeaderboardPage() {
       }
       const formattedBalance = formatBalance(balance.balance, decimals);
       console.log("格式化后的余额:", formattedBalance);
-      setFateBalance(formatBalance(balance?.balance, decimals));
+      setFateBalance(formattedBalance);
     } catch (error) {
       console.error("获取 FATE 余额失败:", error);
       setFateBalance("0");
@@ -168,26 +214,25 @@ export default function LeaderboardPage() {
   const updateCountdown = (endTime: string) => {
     const now = Math.floor(Date.now() / 1000);
     const end = parseInt(endTime);
-    console.log("end",endTime);
+    console.log("end", endTime);
     const diff = end - now;
-    
+
     if (diff <= 0) {
-      setTimeRemaining('The event is over');
+      setTimeRemaining("The event is over");
       return;
     }
-    
+
     const days = Math.floor(diff / (24 * 60 * 60));
     const hours = Math.floor((diff % (24 * 60 * 60)) / (60 * 60));
     const minutes = Math.floor((diff % (60 * 60)) / 60);
-    setTimeRemaining(`${days}天 ${hours}时 ${minutes}分`);
+    setTimeRemaining(`${days}d ${hours}h ${minutes}m`);
   };
-
 
   const fetchEndTime = async () => {
     try {
       const endTime = (await QueryLeaderboardEndTimeAndTotalBurned()).endTime;
       updateCountdown(endTime);
-      
+
       // 设置定时器每分钟更新倒计时
       const timer = setInterval(() => updateCountdown(endTime), 60000);
       return () => clearInterval(timer);
@@ -195,6 +240,7 @@ export default function LeaderboardPage() {
       console.error("获取结束时间失败:", error);
     }
   };
+
   // Fetch data on component mount
   useEffect(() => {
     if (currentAddress && client) {
@@ -205,10 +251,22 @@ export default function LeaderboardPage() {
     }
   }, [currentAddress, client]);
 
+  // Auto-close message after 3 seconds
+  useEffect(() => {
+    if (messageOpen) {
+      const timer = setTimeout(() => {
+        setMessageOpen(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [messageOpen]);
+
   // Handle burn action
   const handleBurn = async () => {
     if (!burnAmount || isNaN(Number(burnAmount))) {
-      alert("请输入有效数量");
+      setMessageType("error");
+      setMessageText("请输入有效数量");
+      setMessageOpen(true);
       return;
     }
 
@@ -233,59 +291,97 @@ export default function LeaderboardPage() {
           ]);
 
           // 成功提示
-          alert(`成功燃烧 ${amountToBurn} FATE`);
+          setMessageType("success");
+          setMessageText(`成功燃烧 ${amountToBurn} FATE`);
+          setMessageOpen(true);
         } catch (error) {
           console.error("数据刷新失败:", error);
+          setMessageType("error");
+          setMessageText("数据刷新失败");
+          setMessageOpen(true);
         }
       }, 1000);
     } catch (error) {
       console.error("燃烧失败:", error);
-      setBurnAmount(burnAmount);
+      setBurnAmount(burnAmount); // Restore input on failure
+      setMessageType("error");
+      setMessageText("燃烧失败，请重试");
+      setMessageOpen(true);
     }
   };
 
   return (
     <Layout>
       <Container className="app-container">
+        {messageOpen && (
+          <LeaderboardMessage type={messageType}>
+            {messageType === "success" && (
+              <>
+                <CheckCircleOutlineIcon
+                  sx={{ fontSize: "2.5rem", color: "white", mb: 1 }}
+                />
+                <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                  {messageText}
+                </Typography>
+              </>
+            )}
+            {messageType === "error" && (
+              <>
+                <ErrorOutlineIcon
+                  sx={{ fontSize: "2.5rem", color: "white", mb: 1 }}
+                />
+                <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                  {messageText}
+                </Typography>
+              </>
+            )}
+          </LeaderboardMessage>
+        )}
         <Stack
           className="font-sans"
           direction="column"
           sx={{
             minHeight: "100vh",
             padding: { xs: "1rem", md: "2rem" },
-            maxWidth: "1440px", // 添加最大宽度
-            margin: "0 auto", // 居中显示
-            width: "100%", // 确保占满可用空间
+            maxWidth: "1440px",
+            margin: "0 auto",
+            width: "100%",
           }}
         >
           <Stack
             direction="row"
-            justifyContent="space-between"
+            justifyContent="center"
             alignItems="center"
-            sx={{
-              mb: { xs: 4, md: 8 },
-              width: "100%",
-            }}
+            className="mb-8"
           >
             <Typography variant="h4" sx={{ fontWeight: "bold" }}>
-              排行榜
+              League S1
             </Typography>
-            {timeRemaining && (
-        <Chip
-          label={`剩余时间: ${timeRemaining}`}
-          color="primary"
-          sx={{ fontWeight: "bold" }}
-        />
-      )}
-            {/* <Box width={100} /> */}
+
           </Stack>
+          <br/>
+          <br/>
+          <Stack
+            direction="row"
+            justifyContent="center"
+            alignItems="center"
+            className="mb-8"
+          >
+          {timeRemaining && (
+              <Chip
+                label={`Time Remaining: ${timeRemaining}`}
+                color="warning"
+                sx={{ fontWeight: "bold" }}
+              />
+            )}
+                      </Stack>
           <Grid container spacing={4}>
             {/* User Info Card */}
             <Grid item xs={12}>
               <StyledCard elevation={3}>
                 <CardContent>
                   <Typography variant="h5" sx={{ mb: 3, fontWeight: "bold" }}>
-                    我的信息
+                    User Info
                   </Typography>
                   <Stack spacing={2}>
                     <Box
@@ -295,7 +391,7 @@ export default function LeaderboardPage() {
                         alignItems: "center",
                       }}
                     >
-                      <Typography>当前排名:</Typography>
+                      <Typography>Rank:</Typography>
                       <Chip
                         label={getCurrentUserRank()}
                         color="primary"
@@ -309,7 +405,7 @@ export default function LeaderboardPage() {
                         alignItems: "center",
                       }}
                     >
-                      <Typography>当前NFT等级:</Typography>
+                      <Typography>NFT Level:</Typography>
                       <Chip
                         label={userNftData?.level || "-"}
                         color="success"
@@ -323,7 +419,7 @@ export default function LeaderboardPage() {
                         alignItems: "center",
                       }}
                     >
-                      <Typography>已燃烧数量:</Typography>
+                      <Typography>Burn Amount:</Typography>
                       <Chip
                         label={userNftData?.burn_amount || "-"}
                         color="secondary"
@@ -332,14 +428,14 @@ export default function LeaderboardPage() {
                     </Box>
                     <Stack direction="row" spacing={2} alignItems="center">
                       <TextField
-                        placeholder="输入要燃烧的FATE数量"
+                        placeholder="input amount"
                         value={burnAmount}
                         onChange={(e) => setBurnAmount(e.target.value)}
                         size="small"
                         sx={{ width: 200 }}
                       />
                       <Typography color="text.secondary">
-                        当前 FATE 余额: {fateBalance}
+                        $FATE Balance: {fateBalance}
                       </Typography>
                       <SessionKeyGuard onClick={handleBurn}>
                         <StyledButton
@@ -351,7 +447,7 @@ export default function LeaderboardPage() {
                             Number(burnAmount) > Number(fateBalance)
                           }
                         >
-                          燃烧
+                          Burn
                         </StyledButton>
                       </SessionKeyGuard>
                     </Stack>
@@ -396,7 +492,7 @@ export default function LeaderboardPage() {
                       >
                         <Typography>Level</Typography>
                         <Tooltip
-                          title="Level为预览, 每周一 20:00 （UTC+8）进行快照同步至NFT"
+                          title="Level is a preview, and a snapshot will be synchronized to NFT every Monday at 20:00 (UTC+8)"
                           arrow
                           placement="top"
                         >

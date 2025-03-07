@@ -160,14 +160,14 @@ export function GridNavigation({
                           }}
                           transition={{ duration: 2, repeat: Infinity }}
                         >
-                          {card.extraContent.isCheckedInToday ? "✓ 今日已签到" : "✓ 点击签到"}
+                          {card.extraContent.isCheckedInToday ? "✓ Checked in today" : "✓ Check-in"}
                         </PulseBadge>
                       </motion.div>
                     )}
                 
                 {card.extraContent.continueDays && (
                   <div className="mt-2 text-sm font-medium text-gray-700">
-                    已连续签到 
+                    Continuous check-in
                     <span className="text-indigo-600 font-bold mx-1">
                       {card.extraContent.continueDays}
                     </span> 
@@ -177,7 +177,7 @@ export function GridNavigation({
                 
                 {card.extraContent.nextReward && (
                   <div className="mt-2 text-sm font-medium text-gray-700 flex items-center">
-                    下次签到奖励: 
+                    Next Check-in reward: 
                     <RewardBadge
                       animate={{ 
                         y: [0, -3, 0],
@@ -228,7 +228,7 @@ export function GridNavigation({
                   transition={{ duration: 2, repeat: Infinity }}
                 >
                   <div className="text-sm font-medium text-gray-600">
-                    剩余时间
+                    Time Remaining
                   </div>
                   <div className="text-lg font-bold text-red-600 mt-1">
                     {card.extraContent.countdown}
