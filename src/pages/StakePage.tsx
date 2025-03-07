@@ -442,7 +442,6 @@ export default function StakePage() {
             <StyledButton 
                 variant="contained" 
                 color="primary" 
-                onClick={handleStake}
                 disabled={!stakeInfo?.fate_grow_votes}
                 loading={loading}
                 startIcon={<span>📥</span>}
