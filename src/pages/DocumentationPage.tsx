@@ -17,13 +17,27 @@ const docFiles = [
     '5.FateX League S1.md'
 ];
 
-
+interface HeadingInfo {
+    text: string;
+    level: number;
+    id: string;
+}
 
 export function Documentation() {
     const [markdownContents, setMarkdownContents] = useState<{ [key: string]: string }>({});
     const [activeDoc, setActiveDoc] = useState(docFiles[0]);
     const [isLoading, setIsLoading] = useState(true);
+    const [headings, setHeadings] = useState<HeadingInfo[]>([]);
 
+    const extractHeadings = (content: string) => {
+        const headingRegex = /^(#{1,6})\s+(.+)$/gm;
+        const matches = Array.from(content.matchAll(headingRegex));
+        return matches.map(match => ({
+            text: match[2],
+            level: match[1].length,
+            id: match[2].toLowerCase().replace(/[^a-zA-Z0-9]+/g, '-')
+        }));
+    };
     useEffect(() => {
         const loadAllDocs = async () => {
             setIsLoading(true);
@@ -47,53 +61,82 @@ export function Documentation() {
         loadAllDocs();
     }, []);
 
+    useEffect(() => {
+        if (markdownContents[activeDoc]) {
+            const newHeadings = extractHeadings(markdownContents[activeDoc]);
+            setHeadings(newHeadings);
+        }
+    }, [activeDoc, markdownContents]);
+
+    const scrollToHeading = (id: string) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
+
     if (isLoading) {
         return <div className="documentation-loading">loading...</div>;
     }
 
     return (
         <Layout>
-      <Container className="app-container">
-        <div className="documentation-layout">
-            <div className="documentation-sidebar">
-                {docFiles.map((file) => (
-                    <div
-                        key={file}
-                        className={`sidebar-item ${activeDoc === file ? 'active' : ''}`}
-                        onClick={() => setActiveDoc(file)}
-                    >
-                        {file.replace('.md', '')}
-                    </div>
-                ))}
+        <Container className="app-container">
+            <div className="documentation-layout">
+                <div className="documentation-sidebar">
+                    {docFiles.map((file) => (
+                        <div key={file}>
+                            <div
+                                className={`sidebar-item ${activeDoc === file ? 'active' : ''}`}
+                                onClick={() => setActiveDoc(file)}
+                            >
+                                {file.replace('.md', '')}
+                            </div>
+                            <div className="sidebar-subitems">
+                                {activeDoc === file && headings.map((heading, index) => (
+                                    <div
+                                        key={index}
+                                        className={`sidebar-subitem level-${heading.level}`}
+                                        onClick={() => scrollToHeading(heading.id)}
+                                    >
+                                        {heading.text}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                     ))}
+                </div>
+                <div className="documentation-content">
+                    <ReactMarkdown 
+                        children={markdownContents[activeDoc] || ''}
+                        remarkPlugins={[remarkGfm]}
+                        rehypePlugins={[rehypeRaw]}
+                        components={{
+                            h1: ({node, ...props}) => <h1 id={props.children.toString().toLowerCase().replace(/[^a-zA-Z0-9]+/g, '-')} {...props} />,
+                            h2: ({node, ...props}) => <h2 id={props.children.toString().toLowerCase().replace(/[^a-zA-Z0-9]+/g, '-')} {...props} />,
+                            h3: ({node, ...props}) => <h3 id={props.children.toString().toLowerCase().replace(/[^a-zA-Z0-9]+/g, '-')} {...props} />,
+                            code({node, inline, className, children, ...props}) {
+                                const match = /language-(\w+)/.exec(className || '');
+                                return !inline && match ? (
+                                    <SyntaxHighlighter
+                                        style={vscDarkPlus}
+                                        language={match[1]}
+                                        PreTag="div"
+                                        {...props}
+                                    >
+                                        {String(children).replace(/\n$/, '')}
+                                    </SyntaxHighlighter>
+                                ) : (
+                                    <code className={className} {...props}>
+                                        {children}
+                                    </code>
+                                );
+                            }
+                        }}
+                    />
+                </div>
             </div>
-            <div className="documentation-content">
-                <ReactMarkdown 
-                    children={markdownContents[activeDoc] || ''}
-                    remarkPlugins={[remarkGfm]}
-                    rehypePlugins={[rehypeRaw]}
-                    components={{
-                        code({node, inline, className, children, ...props}) {
-                            const match = /language-(\w+)/.exec(className || '');
-                            return !inline && match ? (
-                                <SyntaxHighlighter
-                                    style={vscDarkPlus}
-                                    language={match[1]}
-                                    PreTag="div"
-                                    {...props}
-                                >
-                                    {String(children).replace(/\n$/, '')}
-                                </SyntaxHighlighter>
-                            ) : (
-                                <code className={className} {...props}>
-                                    {children}
-                                </code>
-                            );
-                        }
-                    }}
-                />
-            </div>
-        </div>
         </Container>
-        </Layout>
+    </Layout>
     );
 }
