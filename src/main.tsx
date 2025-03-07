@@ -31,7 +31,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
               }
             } defaultNetwork='testnet'>
               <WalletProvider preferredWallets={['UniSat']} chain={'bitcoin'} autoConnect>
-                {/* <ErrorGuard/> */}
+                <ErrorGuard/>
                 
                 <BrowserRouter>
               <Routes>
