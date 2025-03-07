@@ -107,7 +107,7 @@ export function Documentation() {
                      ))}
                 </div>
                 <div className="documentation-content">
-                    <ReactMarkdown 
+                    <ReactMarkdown
                         children={markdownContents[activeDoc] || ''}
                         remarkPlugins={[remarkGfm]}
                         rehypePlugins={[rehypeRaw]}
