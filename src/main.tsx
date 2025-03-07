@@ -24,14 +24,14 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <QueryClientProvider client={queryClient}>
             <RoochProvider networks={networkConfig} sessionConf={
               {
-                appName: "rooch_test",
-                appUrl: "https://test.com",
+                appName: "fatex",
+                appUrl: "fatex.zone",
                 scopes: [`${MODULE_ADDRESS}::*::*`],
-                maxInactiveInterval: 1200
+                maxInactiveInterval: 60 * 60 * 8
               }
             } defaultNetwork='testnet'>
               <WalletProvider preferredWallets={['UniSat']} chain={'bitcoin'} autoConnect>
-                <ErrorGuard/>
+                {/* <ErrorGuard/> */}
                 
                 <BrowserRouter>
               <Routes>

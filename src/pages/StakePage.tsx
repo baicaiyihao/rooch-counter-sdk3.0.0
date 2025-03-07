@@ -199,7 +199,7 @@ export default function StakePage() {
 
       // 先显示成功消息，再刷新数据
       setShowSuccess(true);
-      setStakeInfo(prev => ({
+      setStakeInfo((prev: any) => ({
         ...prev,
         accumulated_fate: rewardAmount // 临时保存已领取的数额，用于显示
       }));

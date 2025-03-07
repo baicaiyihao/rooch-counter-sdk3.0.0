@@ -12,19 +12,24 @@ import {
   Fade,
   Zoom,
   Snackbar,
+  Tooltip,
+  IconButton,
 } from "@mui/material";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import {
   useCurrentAddress,
   SessionKeyGuard,
   useCurrentSession,
+  useRoochClient,
 } from "@roochnetwork/rooch-sdk-kit";
 import { useState, useEffect } from "react";
-import { CheckIn } from "../componnents/check_in";
 import { Raffle } from "../componnents/raffle";
 import { styled } from "@mui/material/styles";
 import Confetti from "react-confetti";
 import useWindowSize from "react-use/lib/useWindowSize";
 import { Layout } from "../components/shared/layout";
+import { formatBalance, getCoinDecimals } from "../utils/coinUtils";
+import { FATETYPE } from "../config/constants";
 
 // Custom card style
 const StyledCard = styled(Card)`
@@ -60,20 +65,21 @@ function RafflePage() {
   const currentAddress = useCurrentAddress();
   const currentSession = useCurrentSession();
   const [loading, setLoading] = useState(false);
-  const [checkInRecord, setCheckInRecord] = useState<any>(null);
   const [raffleConfig, setRaffleConfig] = useState<any>(null);
   const [raffleRecord, setRaffleRecord] = useState<any>(null);
   const [justRaffled, setJustRaffled] = useState(false);
+  const [fateBalance, setFateBalance] = useState<string>("0");
   const { width, height } = useWindowSize();
+  const client = useRoochClient();
+
 
   // Snackbar 状态
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">(
-    "success",
+    "success"
   );
 
-  const { GetWeekRaffle, QueryCheckInRecord } = CheckIn();
   const {
     GetCheckInRaffleByFate,
     ClaimMaxRaffle,
@@ -82,8 +88,11 @@ function RafflePage() {
   } = Raffle();
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (currentAddress && client) {
+      fetchData();
+      fetchFateBalance();
+    }
+  }, [currentAddress]);
 
   const fetchData = async () => {
     try {
@@ -91,34 +100,39 @@ function RafflePage() {
       setRaffleConfig(raffleConfigData);
       console.log("奖池配置:", raffleConfigData);
 
-      if (currentAddress) {
-        const checkInRecordData = await QueryCheckInRecord();
-        const raffleRecordData = await QueryCheckInRaffleRecord();
-
-        setCheckInRecord(checkInRecordData);
-        if (raffleRecordData) {
-          setRaffleRecord(raffleRecordData);
-          console.log("抽奖记录:", raffleRecordData);
-        }
-      }
+      const raffleRecordData = await QueryCheckInRaffleRecord();
+      console.log("抽奖记录:", raffleRecordData);
+      setRaffleRecord(raffleRecordData);
     } catch (error) {
       console.error("获取数据失败:", error);
     }
   };
 
-  const handleWeekRaffle = async () => {
-    if (loading) return;
+  const fetchFateBalance = async () => {
+    if (!currentAddress || !client) return;
 
-    setLoading(true);
     try {
-      await GetWeekRaffle();
-      await fetchData();
-      setJustRaffled(true);
-      setTimeout(() => setJustRaffled(false), 3000); // Reset confetti after 3s
+      console.log("开始获取余额...");
+      const decimals = await getCoinDecimals(client, FATETYPE);
+      console.log("获取到 decimals:", decimals);
+
+      const balance = (await client.getBalance({
+        owner: currentAddress?.genRoochAddress().toHexAddress() || "",
+        coinType: FATETYPE,
+      })) as any;
+      console.log("原始余额数据:", balance);
+
+      if (!balance?.balance) {
+        console.warn("余额返回值异常:", balance);
+        setFateBalance("0");
+        return;
+      }
+      const formattedBalance = formatBalance(balance.balance, decimals);
+      console.log("格式化后的余额:", formattedBalance);
+      setFateBalance(formatBalance(balance?.balance, decimals));
     } catch (error) {
-      console.error("每周抽奖失败:", error);
-    } finally {
-      setLoading(false);
+      console.error("获取 FATE 余额失败:", error);
+      setFateBalance("0");
     }
   };
 
@@ -130,7 +144,6 @@ function RafflePage() {
     const secondWeight = Number(config.second_prize_weight);
     const thirdWeight = Number(config.third_prize_weight);
 
-    // 计算累积权重
     const totalWeight = grandWeight + secondWeight + thirdWeight;
     const normalizedResult =
       (resultNum / Number(config.max_raffle_count_weight)) * totalWeight;
@@ -156,10 +169,11 @@ function RafflePage() {
     }
   };
 
+  
+
   const handleFateRaffle = async () => {
     if (loading) return;
 
-    // 添加抽奖次数检查
     if (parseInt(raffleRecord?.raffle_count || "0") >= 50) {
       setSnackbarMessage("已达到最大抽奖次数限制（50次）");
       setSnackbarSeverity("error");
@@ -172,20 +186,18 @@ function RafflePage() {
       const result = await GetCheckInRaffleByFate();
       console.log("Fate抽奖结果:", result);
 
-      // 添加类型检查
       if (result === undefined) {
-        setSnackbarMessage("抽奖结果无效");
+        setSnackbarMessage("Fate余额不足或已到抽取上限");
         setSnackbarSeverity("error");
         setSnackbarOpen(true);
         return;
       }
 
-      // 判断中奖等级
       const prizeLevel = getPrizeLevel(Number(result), raffleConfig);
 
       if (prizeLevel) {
         setSnackbarMessage(
-          `恭喜获得${prizeLevel.name}！获取${prizeLevel.duration}FATE`,
+          `恭喜获得${prizeLevel.name}！获取${prizeLevel.duration}FATE`
         );
         setSnackbarSeverity("success");
         setSnackbarOpen(true);
@@ -211,9 +223,15 @@ function RafflePage() {
       await ClaimMaxRaffle();
       await fetchData();
       setJustRaffled(true);
+      setSnackbarMessage("领取成功");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
       setTimeout(() => setJustRaffled(false), 3000);
     } catch (error) {
       console.error("领取保底失败:", error);
+      setSnackbarMessage("领取保底失败，请重试");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
     } finally {
       setLoading(false);
     }
@@ -273,7 +291,7 @@ function RafflePage() {
                     抽奖状态
                   </Typography>
 
-                  {checkInRecord && raffleRecord ? (
+                  {raffleRecord ? (
                     <Stack spacing={2}>
                       <Box
                         sx={{
@@ -282,10 +300,21 @@ function RafflePage() {
                           alignItems: "center",
                         }}
                       >
-                        <Typography>剩余抽奖次数:</Typography>
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                          <Typography>今日抽奖次数:</Typography>
+                          <Tooltip
+                            title="每日抽奖上限次数为50次, 次日首次抽奖后刷新次数。"
+                            arrow
+                            placement="top"
+                          >
+                            <IconButton size="small" sx={{ ml: 1 }}>
+                              <HelpOutlineIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        </Box>
                         <Zoom in={true} style={{ transitionDelay: "100ms" }}>
                           <Chip
-                            label={checkInRecord?.lottery_count || 0}
+                            label={raffleRecord?.daily_raffle_count || 0}
                             color="secondary"
                             sx={{ fontWeight: "bold" }}
                           />
@@ -298,7 +327,18 @@ function RafflePage() {
                           alignItems: "center",
                         }}
                       >
-                        <Typography>已抽取次数:</Typography>
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                          <Typography>累计未领保底次数:</Typography>
+                          <Tooltip
+                            title="每累计10次抽奖可领取一次保底奖励，领取后此数值会减少10"
+                            arrow
+                            placement="top"
+                          >
+                            <IconButton size="small" sx={{ ml: 1 }}>
+                              <HelpOutlineIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        </Box>
                         <Zoom in={true} style={{ transitionDelay: "200ms" }}>
                           <Chip
                             label={raffleRecord?.raffle_count || 0}
@@ -307,9 +347,29 @@ function RafflePage() {
                           />
                         </Zoom>
                       </Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Typography>距下次保底还需:</Typography>
+                        <Zoom in={true} style={{ transitionDelay: "300ms" }}>
+                          <Chip
+                            label={
+                              (raffleRecord?.raffle_count || 0) % 10 === 0
+                                ? 10
+                                : 10 - ((raffleRecord?.raffle_count || 0) % 10)
+                            }
+                            color="warning"
+                            sx={{ fontWeight: "bold" }}
+                          />
+                        </Zoom>
+                      </Box>
                     </Stack>
                   ) : (
-                    <Typography>--</Typography>
+                    <Typography>未查询到抽奖信息，请先进行抽奖。</Typography>
                   )}
                 </CardContent>
               </StyledCard>
@@ -331,7 +391,6 @@ function RafflePage() {
                   </Typography>
                   {raffleConfig ? (
                     <Stack spacing={2}>
-                      {/* 奖品信息 */}
                       <Typography
                         variant="subtitle1"
                         className="mb-2 font-bold"
@@ -383,7 +442,6 @@ function RafflePage() {
 
                       <Divider sx={{ my: 2 }} />
 
-                      {/* 中奖概率 */}
                       <Typography
                         variant="subtitle1"
                         className="mb-2 font-bold"
@@ -445,22 +503,9 @@ function RafflePage() {
             direction="row"
             spacing={2}
             justifyContent="center"
-            className="mt-4 "
+            className="mt-4"
             style={{ marginTop: "30px" }}
           >
-            {/* <SessionKeyGuard onClick={handleWeekRaffle}>
-         <StyledButton
-            variant="contained"
-            color="primary"
-            size="large"
-            loading={loading}
-            disabled={parseInt(checkInRecord?.lottery_count || '0') === 0}
-            startIcon={<span>🎲</span>}
-          >
-            每周抽奖 ({checkInRecord?.lottery_count || 0})
-          </StyledButton>
-         </SessionKeyGuard> */}
-
             <SessionKeyGuard onClick={handleFateRaffle}>
               <StyledButton
                 variant="contained"
@@ -479,7 +524,6 @@ function RafflePage() {
                 color="success"
                 size="large"
                 loading={loading}
-                onClick={handleClaimMaxRaffle}
                 disabled={parseInt(raffleRecord?.raffle_count || "0") < 10}
                 startIcon={<span>🏅</span>}
               >
@@ -487,8 +531,28 @@ function RafflePage() {
               </StyledButton>
             </SessionKeyGuard>
           </Stack>
+          {raffleConfig && (
+            <Fade in={true}>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ mt: 2, textAlign: "center" }}
+              >
+                当前 FATE 余额:{fateBalance}
+                <br/>
+                抽奖费用:{" "}
+                {(
+                  (Number(raffleConfig?.grand_prize_duration || 1000) * 5 +
+                    Number(raffleConfig?.second_prize_duration || 500) * 25 +
+                    Number(raffleConfig?.third_prize_duration || 150) * 70) /
+                  100
+                ).toFixed(2)}{" "}
+                FATE
+              </Typography>
+            </Fade>
+          )}
 
-          {parseInt(raffleRecord?.raffle_count || "0") < 10 && (
+          {/* {parseInt(raffleRecord?.raffle_count || "0") < 10 && (
             <Fade in={true}>
               <Typography
                 variant="body2"
@@ -499,8 +563,8 @@ function RafflePage() {
                 次即可领取保底奖励！
               </Typography>
             </Fade>
-          )}
-          {raffleRecord && (
+          )} */}
+          {/* {raffleRecord && (
             <Fade in={true}>
               <Typography
                 variant="body2"
@@ -509,22 +573,24 @@ function RafflePage() {
               >
                 {parseInt(raffleRecord?.raffle_count || "0") >= 50
                   ? "已达到最大抽奖次数（50次）"
-                  : `剩余可抽奖次数：${50 - parseInt(raffleRecord?.raffle_count || "0")}次`}
+                  : `剩余可抽奖次数：${
+                      50 - parseInt(raffleRecord?.daily_raffle_count || "0")
+                    }次`}
               </Typography>
             </Fade>
-          )}
+          )} */}
         </Stack>
 
         <Snackbar
           open={snackbarOpen}
-          autoHideDuration={5000} // 5秒后自动关闭，与原 message.success 的 5 秒一致
+          autoHideDuration={5000}
           onClose={handleSnackbarClose}
           anchorOrigin={{ vertical: "top", horizontal: "center" }}
           message={snackbarMessage}
           sx={{
             "& .MuiSnackbarContent-root": {
               backgroundColor:
-                snackbarSeverity === "success" ? "#2e7d32" : "#d32f2f", // success: green, error: red
+                snackbarSeverity === "success" ? "#2e7d32" : "#d32f2f",
               color: "#fff",
             },
           }}

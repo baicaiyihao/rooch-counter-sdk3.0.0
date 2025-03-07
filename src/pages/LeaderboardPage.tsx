@@ -11,6 +11,8 @@ import {
   Typography,
   styled,
   Container,
+  Tooltip,
+  IconButton,
 } from "@mui/material";
 import { Leaderboard } from "../componnents/leaderboard";
 import { UserNft } from "../componnents/usernft";
@@ -24,6 +26,8 @@ import { getCoinDecimals, formatBalance } from "../utils/coinUtils";
 import { FATETYPE } from "../config/constants";
 import { motion } from "framer-motion";
 import { Layout } from "../components/shared/layout";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+
 
 // Custom card styling
 const StyledCard = styled(Card)`
@@ -361,10 +365,10 @@ export default function LeaderboardPage() {
               <StyledCard elevation={3}>
                 <CardContent>
                   <Typography variant="h5" sx={{ mb: 3, fontWeight: "bold" }}>
-                  Ranking list
+                    Ranking list
                   </Typography>
                   <Stack spacing={2}>
-                    {/* 添加表头 */}
+                    {/* 表头 */}
                     <Box
                       sx={{
                         display: "flex",
@@ -376,11 +380,36 @@ export default function LeaderboardPage() {
                         color: "text.secondary",
                       }}
                     >
-                      <Typography sx={{ width: "10%" }}>Rank</Typography>
-                      <Typography sx={{ width: "40%" }}>Address</Typography>
-                      <Typography sx={{ width: "20%" }}>Level</Typography>
-                      <Typography sx={{ width: "30%" }}>Burn Amount</Typography>
+                      <Typography sx={{ width: "10%", textAlign: "center" }}>
+                        Rank
+                      </Typography>
+                      <Typography sx={{ width: "40%", textAlign: "center" }}>
+                        Address
+                      </Typography>
+                      <Box
+                        sx={{
+                          width: "20%",
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Typography>Level</Typography>
+                        <Tooltip
+                          title="Level为预览, 每周一 20:00 （UTC+8）进行快照同步至NFT"
+                          arrow
+                          placement="top"
+                        >
+                          <IconButton size="small" sx={{ ml: 0.5 }}>
+                            <HelpOutlineIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      </Box>
+                      <Typography sx={{ width: "30%", textAlign: "center" }}>
+                        Burn Amount
+                      </Typography>
                     </Box>
+                    {/* 表格内容 */}
                     {rankings.map((item, index) => (
                       <motion.div
                         key={item.key}
@@ -400,16 +429,16 @@ export default function LeaderboardPage() {
                                 : "none",
                           }}
                         >
-                          <Typography sx={{ width: "10%" }}>
+                          <Typography sx={{ width: "10%", textAlign: "center" }}>
                             {item.rank}
                           </Typography>
-                          <Typography sx={{ width: "40%" }}>
+                          <Typography sx={{ width: "40%", textAlign: "center" }}>
                             {shortenAddress(item.address)}
                           </Typography>
-                          <Typography sx={{ width: "20%" }}>
+                          <Typography sx={{ width: "20%", textAlign: "center" }}>
                             {item.level}
                           </Typography>
-                          <Typography sx={{ width: "30%" }}>
+                          <Typography sx={{ width: "30%", textAlign: "center" }}>
                             {item.burnAmount}
                           </Typography>
                         </Box>
