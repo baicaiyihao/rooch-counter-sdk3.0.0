@@ -206,7 +206,7 @@ export default function StakePage() {
     setLoading(true);
     try {
       await Stake();
-      await Promise.all([fetchUserInfo(), fetchPoolInfo()]);
+      await Promise.all([fetchUserInfo(), fetchPoolInfo(), fetchFateBalance()]);
       setMessageType("success");
       setMessageText("Stake successful!");
       setMessageOpen(true);
@@ -226,7 +226,7 @@ export default function StakePage() {
     setLoading(true);
     try {
       await UnStake();
-      await Promise.all([fetchUserInfo(), fetchPoolInfo()]);
+      await Promise.all([fetchUserInfo(), fetchPoolInfo(), fetchFateBalance()]);
       setMessageType("success");
       setMessageText("Unstake successful!");
       setMessageOpen(true);
