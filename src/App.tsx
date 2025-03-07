@@ -1,6 +1,6 @@
 import { Container } from "@radix-ui/themes";
 import "./styles.css"; 
-import {  Stack } from "@mui/material"; 
+import {  Stack } from "@mui/material";
 import { AnimatedBackground} from "./uicomponents/shared/animation_components"
 import { NavBar } from './uicomponents/shared/nav_bar';
 import { StakeByGrowVotes } from './components/stake_by_grow_votes';
