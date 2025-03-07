@@ -21,7 +21,6 @@ import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import {
   useCurrentAddress,
   SessionKeyGuard,
-  useCurrentSession,
   useRoochClient,
 } from "@roochnetwork/rooch-sdk-kit";
 import { useState, useEffect } from "react";
@@ -170,13 +169,13 @@ function RafflePage() {
     try {
       const raffleConfigData = await QueryCheckInRaffle();
       setRaffleConfig(raffleConfigData);
-      console.log("奖池配置:", raffleConfigData);
+      // console.log("奖池配置:", raffleConfigData);
 
       const raffleRecordData = await QueryCheckInRaffleRecord();
-      console.log("抽奖记录:", raffleRecordData);
+      // console.log("抽奖记录:", raffleRecordData);
       setRaffleRecord(raffleRecordData);
     } catch (error) {
-      console.error("获取数据失败:", error);
+      // console.error("获取数据失败:", error);
     }
   };
 
@@ -184,26 +183,26 @@ function RafflePage() {
     if (!currentAddress || !client) return;
 
     try {
-      console.log("开始获取余额...");
+      // console.log("开始获取余额...");
       const decimals = await getCoinDecimals(client, FATETYPE);
-      console.log("获取到 decimals:", decimals);
+      // console.log("获取到 decimals:", decimals);
 
       const balance = (await client.getBalance({
         owner: currentAddress?.genRoochAddress().toHexAddress() || "",
         coinType: FATETYPE,
       })) as any;
-      console.log("原始余额数据:", balance);
+      // console.log("原始余额数据:", balance);
 
       if (!balance?.balance) {
-        console.warn("余额返回值异常:", balance);
+        // console.warn("余额返回值异常:", balance);
         setFateBalance("0");
         return;
       }
       const formattedBalance = formatBalance(balance.balance, decimals);
-      console.log("格式化后的余额:", formattedBalance);
+      // console.log("格式化后的余额:", formattedBalance);
       setFateBalance(formattedBalance);
     } catch (error) {
-      console.error("获取 FATE 余额失败:", error);
+      // console.error("获取 FATE 余额失败:", error);
       setFateBalance("0");
     }
   };
@@ -255,7 +254,7 @@ function RafflePage() {
     setLoading(true);
     try {
       const result = await GetCheckInRaffleByFate();
-      console.log("Fate抽奖结果:", result);
+      // console.log("Fate抽奖结果:", result);
 
       if (result === undefined) {
         setMessageType("error");
@@ -276,7 +275,7 @@ function RafflePage() {
       }
       await fetchData();
     } catch (error) {
-      console.error("Fate抽奖失败:", error);
+      // console.error("Fate抽奖失败:", error);
       setMessageType("error");
       setMessageText("Raffle failed, please try again.");
       setPrizeDetails(null);
@@ -298,7 +297,7 @@ function RafflePage() {
       setPrizeDetails(null); // 保底奖励不需要 prizeDetails
       setMessageOpen(true);
     } catch (error) {
-      console.error("领取保底失败:", error);
+      // console.error("领取保底失败:", error);
       setMessageType("error");
       setMessageText("Claim failed, please try again.");
       setPrizeDetails(null);

@@ -1,5 +1,5 @@
 
-import { Grid, Paper } from "@mui/material";
+import { Grid } from "@mui/material";
 import { keyframes } from "@emotion/react";
 import { styled } from "@mui/material/styles";
 import { motion } from "framer-motion"; 
@@ -29,16 +29,6 @@ const Card = styled(motion.div)`
     background: rgba(255, 255, 255, 0.25);
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
   }
-`;
-// 创建带有浮动动画的Paper组件
-const AnimatedPaper = styled(Paper)`
-  transition: all 0.3s ease;
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-  }
-  animation: ${float} 4s ease-in-out infinite;
-  animation-delay: ${props => props.delay || '0s'};
 `;
 
 // 创建脉冲效果的徽章
@@ -114,7 +104,6 @@ export function GridNavigation({
   md = 6, 
   lg = 6,
   defaultHeight = '180px',
-  fullWidth = false
 }: GridNavigationProps) {
   return (
     <div style={{ width: '100%', position: 'relative', boxSizing: 'border-box', overflow: 'hidden' }}>

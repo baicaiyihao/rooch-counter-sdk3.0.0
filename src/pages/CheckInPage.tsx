@@ -131,7 +131,7 @@ function CheckInPage() {
         const record = await QueryCheckInRecord();
         setCheckInRecord(record);
       } catch (error) {
-        console.error("获取签到数据失败:", error);
+        // console.error("获取签到数据失败:", error);
       }
     };
 
@@ -146,8 +146,8 @@ function CheckInPage() {
 
     setLoading(true);
     try {
-      const result = await handleCheckIn();
-      console.log('签到结果:', result);
+      await handleCheckIn();
+      // console.log('签到结果:', result);
 
       const record = await QueryCheckInRecord();
       setCheckInRecord(record);
@@ -169,7 +169,7 @@ function CheckInPage() {
         setShowSuccess(false);
       }, 3000);
     } catch (error) {
-      console.error("签到失败:", error);
+      // console.error("签到失败:", error);
     } finally {
       setLoading(false);
     }
@@ -181,14 +181,14 @@ function CheckInPage() {
 
     setLoading(true);
     try {
-      const result = await GetWeekRaffle();
-      console.log('周抽奖结果:', result);
+      await GetWeekRaffle();
+      // console.log('周抽奖结果:', result);
 
       // 重新获取签到记录
       const record = await QueryCheckInRecord();
       setCheckInRecord(record);
     } catch (error) {
-      console.error("周抽奖失败:", error);
+      // console.error("周抽奖失败:", error);
     } finally {
       setLoading(false);
     }

@@ -25,6 +25,7 @@
     "@tailwindcss/postcss": "^4.0.9",
     "@tailwindcss/vite": "^4.0.9",
     "@tanstack/react-query": "^5.0.0",
+    "class-variance-authority": "^0.7.1",
     "framer-motion": "^12.4.7",
     "install": "^0.13.0",
     "lodash.throttle": "^4.1.1",
@@ -42,6 +43,7 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
+    "@types/lodash.throttle": "^4.1.9",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@types/react-syntax-highlighter": "^15.5.13",

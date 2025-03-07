@@ -29,7 +29,6 @@ import { Layout } from "../uicomponents/shared/layout";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
-import { keyframes } from "@emotion/react";
 
 // 定义 props 类型
 interface LeaderboardMessageProps {
@@ -66,17 +65,6 @@ const StyledButton = styled(Button)`
   }
 `;
 
-// Slide-down animation for the message
-const slideDownAnimation = keyframes`
-  0% {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-  100% {
-    transform: translateY(0);
-    opacity: 1;
-  }
-`;
 
 // 创建 styled 组件
 const LeaderboardMessage = styled(Box)<LeaderboardMessageProps>(({ type }) => ({
@@ -145,7 +133,7 @@ export default function LeaderboardPage() {
 
       setRankings(combinedData);
     } catch (error) {
-      console.error("Failed to fetch leaderboard data:", error);
+      // console.error("Failed to fetch leaderboard data:", error);
     }
   };
 
@@ -155,7 +143,7 @@ export default function LeaderboardPage() {
       const userData = await QueryUserNft();
       setUserNftData(userData);
     } catch (error) {
-      console.error("Failed to fetch user NFT data:", error);
+      // console.error("Failed to fetch user NFT data:", error);
       setUserNftData(null);
     }
   };
@@ -187,26 +175,26 @@ export default function LeaderboardPage() {
     if (!currentAddress || !client) return;
 
     try {
-      console.log("开始获取余额...");
+      // console.log("开始获取余额...");
       const decimals = await getCoinDecimals(client, FATETYPE);
-      console.log("获取到 decimals:", decimals);
+      // console.log("获取到 decimals:", decimals);
 
       const balance = (await client.getBalance({
         owner: currentAddress?.genRoochAddress().toHexAddress() || "",
         coinType: FATETYPE,
       })) as any;
-      console.log("原始余额数据:", balance);
+      // console.log("原始余额数据:", balance);
 
       if (!balance?.balance) {
-        console.warn("余额返回值异常:", balance);
+        // console.warn("余额返回值异常:", balance);
         setFateBalance("0");
         return;
       }
       const formattedBalance = formatBalance(balance.balance, decimals);
-      console.log("格式化后的余额:", formattedBalance);
+      // console.log("格式化后的余额:", formattedBalance);
       setFateBalance(formattedBalance);
     } catch (error) {
-      console.error("获取 FATE 余额失败:", error);
+      // console.error("获取 FATE 余额失败:", error);
       setFateBalance("0");
     }
   };
@@ -214,7 +202,7 @@ export default function LeaderboardPage() {
   const updateCountdown = (endTime: string) => {
     const now = Math.floor(Date.now() / 1000);
     const end = parseInt(endTime);
-    console.log("end", endTime);
+    // console.log("end", endTime);
     const diff = end - now;
 
     if (diff <= 0) {
@@ -237,7 +225,7 @@ export default function LeaderboardPage() {
       const timer = setInterval(() => updateCountdown(endTime), 60000);
       return () => clearInterval(timer);
     } catch (error) {
-      console.error("获取结束时间失败:", error);
+      // console.error("获取结束时间失败:", error);
     }
   };
 
@@ -265,7 +253,7 @@ export default function LeaderboardPage() {
   const handleBurn = async () => {
     if (!burnAmount || isNaN(Number(burnAmount))) {
       setMessageType("error");
-      setMessageText("请输入有效数量");
+      setMessageText("Please enter a valid amount");
       setMessageOpen(true);
       return;
     }
@@ -292,20 +280,20 @@ export default function LeaderboardPage() {
 
           // 成功提示
           setMessageType("success");
-          setMessageText(`成功燃烧 ${amountToBurn} FATE`);
+          setMessageText(`Successfully burn ${amountToBurn} $FATE`);
           setMessageOpen(true);
         } catch (error) {
-          console.error("数据刷新失败:", error);
+          // console.error("数据刷新失败:", error);
           setMessageType("error");
-          setMessageText("数据刷新失败");
+          setMessageText("Data refresh failed");
           setMessageOpen(true);
         }
       }, 1000);
     } catch (error) {
-      console.error("燃烧失败:", error);
+      // console.error("燃烧失败:", error);
       setBurnAmount(burnAmount); // Restore input on failure
       setMessageType("error");
-      setMessageText("燃烧失败，请重试");
+      setMessageText("Burn failed, please try again");
       setMessageOpen(true);
     }
   };

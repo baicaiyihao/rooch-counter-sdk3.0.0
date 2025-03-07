@@ -112,26 +112,41 @@ export function Documentation() {
                         remarkPlugins={[remarkGfm]}
                         rehypePlugins={[rehypeRaw]}
                         components={{
-                            h1: ({node, ...props}) => <h1 id={props.children.toString().toLowerCase().replace(/[^a-zA-Z0-9]+/g, '-')} {...props} />,
-                            h2: ({node, ...props}) => <h2 id={props.children.toString().toLowerCase().replace(/[^a-zA-Z0-9]+/g, '-')} {...props} />,
-                            h3: ({node, ...props}) => <h3 id={props.children.toString().toLowerCase().replace(/[^a-zA-Z0-9]+/g, '-')} {...props} />,
-                            code({node, inline, className, children, ...props}) {
+                            h1: ({ node, ...props }) => {
+                                const id = props.children && typeof props.children === 'string'
+                                  ? props.children.toLowerCase().replace(/[^a-zA-Z0-9]+/g, '-')
+                                  : '';
+                                return <h1 id={id} {...props} />;
+                              },
+                              h2: ({ node, ...props }) => {
+                                const id = props.children && typeof props.children === 'string'
+                                  ? props.children.toLowerCase().replace(/[^a-zA-Z0-9]+/g, '-')
+                                  : '';
+                                return <h2 id={id} {...props} />;
+                              },
+                              h3: ({ node, ...props }) => {
+                                const id = props.children && typeof props.children === 'string'
+                                  ? props.children.toLowerCase().replace(/[^a-zA-Z0-9]+/g, '-')
+                                  : '';
+                                return <h3 id={id} {...props} />;
+                              },
+                              code: ({ node, inline, className, children, ...props }: any) => {
                                 const match = /language-(\w+)/.exec(className || '');
                                 return !inline && match ? (
-                                    <SyntaxHighlighter
-                                        style={vscDarkPlus}
-                                        language={match[1]}
-                                        PreTag="div"
-                                        {...props}
-                                    >
-                                        {String(children).replace(/\n$/, '')}
-                                    </SyntaxHighlighter>
+                                  <SyntaxHighlighter
+                                    style={vscDarkPlus}
+                                    language={match[1]}
+                                    PreTag="div"
+                                    {...props}
+                                  >
+                                    {String(children).replace(/\n$/, '')}
+                                  </SyntaxHighlighter>
                                 ) : (
-                                    <code className={className} {...props}>
-                                        {children}
-                                    </code>
+                                  <code className={className} {...props}>
+                                    {children}
+                                  </code>
                                 );
-                            }
+                              },
                         }}
                     />
                 </div>

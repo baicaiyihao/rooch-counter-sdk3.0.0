@@ -26,9 +26,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             <RoochProvider networks={networkConfig} sessionConf={
               {
                 appName: "fatex",
-                appUrl: "fatex.zone",
+                appUrl: "https://fatex.zone",
                 scopes: [`${MODULE_ADDRESS}::*::*`],
-                maxInactiveInterval: 60 * 60 * 8
+                maxInactiveInterval: 86400
               }
             } defaultNetwork='testnet'>
               <WalletProvider preferredWallets={['UniSat']} chain={'bitcoin'} autoConnect>
