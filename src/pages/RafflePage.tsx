@@ -23,11 +23,11 @@ import {
   useRoochClient,
 } from "@roochnetwork/rooch-sdk-kit";
 import { useState, useEffect } from "react";
-import { Raffle } from "../componnents/raffle";
+import { Raffle } from "../components/raffle";
 import { styled } from "@mui/material/styles";
 import Confetti from "react-confetti";
 import useWindowSize from "react-use/lib/useWindowSize";
-import { Layout } from "../components/shared/layout";
+import { Layout } from "../uicomponents/shared/layout";
 import { formatBalance, getCoinDecimals } from "../utils/coinUtils";
 import { FATETYPE } from "../config/constants";
 

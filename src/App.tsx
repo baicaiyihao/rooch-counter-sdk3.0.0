@@ -1,9 +1,9 @@
 import { Container } from "@radix-ui/themes";
 import "./styles.css"; 
 import {  Stack } from "@mui/material"; 
-import { AnimatedBackground} from "./components/shared/animation_components"
-import { NavBar } from './components/shared/nav_bar';
-import { StakeByGrowVotes } from './componnents/stake_by_grow_votes';
+import { AnimatedBackground} from "./uicomponents/shared/animation_components"
+import { NavBar } from './uicomponents/shared/nav_bar';
+import { StakeByGrowVotes } from './components/stake_by_grow_votes';
 import {
   useCurrentSession,
   useRoochClientQuery,
@@ -12,9 +12,9 @@ import {
 } from "@roochnetwork/rooch-sdk-kit";
 
 import { useEffect, useState } from "react";
-import { GridNavigation, NavigationCard } from './componnents/grid_navigation'; 
-import { CheckIn } from './componnents/check_in';
-import { Leaderboard } from './componnents/leaderboard';
+import { GridNavigation, NavigationCard } from './components/grid_navigation'; 
+import { CheckIn } from './components/check_in';
+import { Leaderboard } from './components/leaderboard';
 
 function App() {
   const sessionKey = useCurrentSession();
