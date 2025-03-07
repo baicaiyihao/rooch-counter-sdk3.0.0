@@ -41,6 +41,8 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
               <Route path="/stake" element={<StakePage/>} />
               <Route path="/leaderboard" element={<LeaderboardPage/>} />
               <Route path="/docs" element={<Documentation />} />
+              <Route path="/docs/:file" element={<Documentation />} />
+
             </Routes>
           </BrowserRouter>
               </WalletProvider>

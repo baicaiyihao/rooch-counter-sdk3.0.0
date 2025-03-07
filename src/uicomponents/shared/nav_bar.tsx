@@ -41,6 +41,17 @@ export function NavBar() {
           }}
           onClick={() => handleNavigation('/')} // 添加点击事件
         >
+                    {/* 左边添加 logo */}
+            <Box
+            component="img"
+            src="/4.svg" // 替换为实际的 logo 路径
+            alt="Fate X Logo"
+            sx={{
+              width: 40, // 调整 logo 宽度
+              height: "auto", // 保持比例
+              marginRight: 1, // 与文字之间的间距
+            }}
+          />
           <Heading>Fate X</Heading>
         </Box>
         

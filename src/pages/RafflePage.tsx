@@ -129,9 +129,7 @@ function RafflePage() {
   const [fateBalance, setFateBalance] = useState<string>("0");
   const [showConfetti, setShowConfetti] = useState(false);
   const [messageOpen, setMessageOpen] = useState(false);
-  const [messageType, setMessageType] = useState<"success" | "error">(
-    "success"
-  );
+  const [messageType, setMessageType] = useState<"success" | "error">("success");
   const [messageText, setMessageText] = useState("");
   const [prizeDetails, setPrizeDetails] = useState<{
     name: string;
@@ -147,13 +145,36 @@ function RafflePage() {
     QueryCheckInRaffleRecord,
   } = Raffle();
 
-  // Fetch data on address change
+  // Fetch raffle config (independent of wallet)
+  useEffect(() => {
+    const fetchRaffleConfig = async () => {
+      try {
+        const config = await QueryCheckInRaffle();
+        setRaffleConfig(config);
+      } catch (error) {
+        console.error("Failed to fetch raffle config:", error);
+      }
+    };
+
+    fetchRaffleConfig(); // Execute on component mount, no dependency on currentAddress
+  }, []); // Empty dependency array ensures it runs only once on mount
+
+  // Fetch raffle record and balance (dependent on wallet)
   useEffect(() => {
     if (currentAddress && client) {
       fetchData();
       fetchFateBalance();
     }
-  }, [currentAddress]);
+  }, [currentAddress, client]);
+
+  const fetchData = async () => {
+    try {
+      const record = await QueryCheckInRaffleRecord();
+      setRaffleRecord(record);
+    } catch (error) {
+      console.error("Failed to fetch raffle record:", error);
+    }
+  };
 
   // Auto-close message after 3 seconds
   useEffect(() => {
@@ -165,44 +186,24 @@ function RafflePage() {
     }
   }, [messageOpen]);
 
-  const fetchData = async () => {
-    try {
-      const raffleConfigData = await QueryCheckInRaffle();
-      setRaffleConfig(raffleConfigData);
-      // console.log("奖池配置:", raffleConfigData);
-
-      const raffleRecordData = await QueryCheckInRaffleRecord();
-      // console.log("抽奖记录:", raffleRecordData);
-      setRaffleRecord(raffleRecordData);
-    } catch (error) {
-      // console.error("获取数据失败:", error);
-    }
-  };
-
   const fetchFateBalance = async () => {
     if (!currentAddress || !client) return;
 
     try {
-      // console.log("开始获取余额...");
       const decimals = await getCoinDecimals(client, FATETYPE);
-      // console.log("获取到 decimals:", decimals);
-
       const balance = (await client.getBalance({
         owner: currentAddress?.genRoochAddress().toHexAddress() || "",
         coinType: FATETYPE,
       })) as any;
-      // console.log("原始余额数据:", balance);
 
       if (!balance?.balance) {
-        // console.warn("余额返回值异常:", balance);
         setFateBalance("0");
         return;
       }
       const formattedBalance = formatBalance(balance.balance, decimals);
-      // console.log("格式化后的余额:", formattedBalance);
       setFateBalance(formattedBalance);
     } catch (error) {
-      // console.error("获取 FATE 余额失败:", error);
+      console.error("Failed to fetch FATE balance:", error);
       setFateBalance("0");
     }
   };
@@ -254,8 +255,6 @@ function RafflePage() {
     setLoading(true);
     try {
       const result = await GetCheckInRaffleByFate();
-      // console.log("Fate抽奖结果:", result);
-
       if (result === undefined) {
         setMessageType("error");
         setMessageText("Insufficient FATE balance or raffle limit has been reached.");
@@ -275,7 +274,7 @@ function RafflePage() {
       }
       await fetchData();
     } catch (error) {
-      // console.error("Fate抽奖失败:", error);
+      console.error("Fate raffle failed:", error);
       setMessageType("error");
       setMessageText("Raffle failed, please try again.");
       setPrizeDetails(null);
@@ -293,11 +292,11 @@ function RafflePage() {
       await ClaimMaxRaffle();
       await fetchData();
       setMessageType("success");
-      setMessageText("Reward claimed successfully, got 1000 $FATE"); // 设置具体的成功消息
-      setPrizeDetails(null); // 保底奖励不需要 prizeDetails
+      setMessageText("Reward claimed successfully, got 1000 $FATE");
+      setPrizeDetails(null);
       setMessageOpen(true);
     } catch (error) {
-      // console.error("领取保底失败:", error);
+      console.error("Claim max raffle failed:", error);
       setMessageType("error");
       setMessageText("Claim failed, please try again.");
       setPrizeDetails(null);
@@ -356,7 +355,7 @@ function RafflePage() {
               <>
                 <CheckCircleOutlineIcon sx={{ fontSize: "3rem", color: "white", mb: 2 }} />
                 <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-                  {messageText} {/* 显示“领取成功，获得 1000 FATE” */}
+                  {messageText}
                 </Typography>
               </>
             )}
@@ -378,7 +377,7 @@ function RafflePage() {
             className="mb-8"
           >
             <Typography variant="h4" className="font-bold">
-            Raffle Event
+              Raffle Event
             </Typography>
             <Box width={100} />
           </Stack>
@@ -397,88 +396,92 @@ function RafflePage() {
                       🎲
                     </Box>
                     Your Raffle Details
-                    </Typography>
-                    <br/>
+                  </Typography>
+                  <br />
 
-                  {raffleRecord ? (
-                    <Stack spacing={2}>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                        }}
-                      >
-                        <Box sx={{ display: "flex", alignItems: "center" }}>
-                          <Typography>Today's Raffle Attempts:</Typography>
-                          <Tooltip
-                            title="The daily raffle limit is 50 times, and the count resets after the first raffle of the next day."
-                            arrow
-                            placement="top"
-                          >
-                            <IconButton size="small" sx={{ ml: 1 }}>
-                              <HelpOutlineIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
+                  {currentAddress ? (
+                    raffleRecord ? (
+                      <Stack spacing={2}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Box sx={{ display: "flex", alignItems: "center" }}>
+                            <Typography>Today's Raffle Attempts:</Typography>
+                            <Tooltip
+                              title="The daily raffle limit is 50 times, and the count resets after the first raffle of the next day."
+                              arrow
+                              placement="top"
+                            >
+                              <IconButton size="small" sx={{ ml: 1 }}>
+                                <HelpOutlineIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                          </Box>
+                          <Zoom in={true} style={{ transitionDelay: "100ms" }}>
+                            <Chip
+                              label={raffleRecord?.daily_raffle_count || 0}
+                              color="secondary"
+                              sx={{ fontWeight: "bold" }}
+                            />
+                          </Zoom>
                         </Box>
-                        <Zoom in={true} style={{ transitionDelay: "100ms" }}>
-                          <Chip
-                            label={raffleRecord?.daily_raffle_count || 0}
-                            color="secondary"
-                            sx={{ fontWeight: "bold" }}
-                          />
-                        </Zoom>
-                      </Box>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                        }}
-                      >
-                        <Box sx={{ display: "flex", alignItems: "center" }}>
-                          <Typography>Total Unclaimed Guarantee Attempts:</Typography>
-                          <Tooltip
-                            title="Every 10 accumulated raffle attempts allow you to claim one guaranteed reward, and this count decreases by 10 after claiming."
-                            arrow
-                            placement="top"
-                          >
-                            <IconButton size="small" sx={{ ml: 1 }}>
-                              <HelpOutlineIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Box sx={{ display: "flex", alignItems: "center" }}>
+                            <Typography>Total Unclaimed Guarantee Attempts:</Typography>
+                            <Tooltip
+                              title="Every 10 accumulated raffle attempts allow you to claim one guaranteed reward, and this count decreases by 10 after claiming."
+                              arrow
+                              placement="top"
+                            >
+                              <IconButton size="small" sx={{ ml: 1 }}>
+                                <HelpOutlineIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                          </Box>
+                          <Zoom in={true} style={{ transitionDelay: "200ms" }}>
+                            <Chip
+                              label={raffleRecord?.raffle_count || 0}
+                              color="primary"
+                              sx={{ fontWeight: "bold" }}
+                            />
+                          </Zoom>
                         </Box>
-                        <Zoom in={true} style={{ transitionDelay: "200ms" }}>
-                          <Chip
-                            label={raffleRecord?.raffle_count || 0}
-                            color="primary"
-                            sx={{ fontWeight: "bold" }}
-                          />
-                        </Zoom>
-                      </Box>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                        }}
-                      >
-                        <Typography>Remaining for Next Guarantee:</Typography>
-                        <Zoom in={true} style={{ transitionDelay: "300ms" }}>
-                          <Chip
-                            label={
-                              (raffleRecord?.raffle_count || 0) % 10 === 0
-                                ? 10
-                                : 10 - ((raffleRecord?.raffle_count || 0) % 10)
-                            }
-                            color="warning"
-                            sx={{ fontWeight: "bold" }}
-                          />
-                        </Zoom>
-                      </Box>
-                    </Stack>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Typography>Remaining for Next Guarantee:</Typography>
+                          <Zoom in={true} style={{ transitionDelay: "300ms" }}>
+                            <Chip
+                              label={
+                                (raffleRecord?.raffle_count || 0) % 10 === 0
+                                  ? 10
+                                  : 10 - ((raffleRecord?.raffle_count || 0) % 10)
+                              }
+                              color="warning"
+                              sx={{ fontWeight: "bold" }}
+                            />
+                          </Zoom>
+                        </Box>
+                      </Stack>
+                    ) : (
+                      <Typography>No raffle information found, please start by participating in a raffle.</Typography>
+                    )
                   ) : (
-                    <Typography>No raffle information found, please start by participating in a raffle.</Typography>
+                    <Typography>Please connect your wallet to view raffle details.</Typography>
                   )}
                 </CardContent>
               </StyledCard>
@@ -564,7 +567,7 @@ function RafflePage() {
                           alignItems: "center",
                         }}
                       >
-                        <Typography>Probability of first Prize:</Typography>
+                        <Typography>Probability of First Prize:</Typography>
                         <Chip
                           label={`${raffleConfig?.grand_prize_weight?.toString() || "0"}%`}
                           color="primary"
@@ -578,7 +581,7 @@ function RafflePage() {
                           alignItems: "center",
                         }}
                       >
-                        <Typography>Probability of second prize:</Typography>
+                        <Typography>Probability of Second Prize:</Typography>
                         <Chip
                           label={`${raffleConfig?.second_prize_weight?.toString() || "0"}%`}
                           color="success"
@@ -592,7 +595,7 @@ function RafflePage() {
                           alignItems: "center",
                         }}
                       >
-                        <Typography>Probability of third prize:</Typography>
+                        <Typography>Probability of Third Prize:</Typography>
                         <Chip
                           label={`${raffleConfig?.third_prize_weight?.toString() || "0"}%`}
                           color="secondary"
@@ -601,7 +604,7 @@ function RafflePage() {
                       </Box>
                     </Stack>
                   ) : (
-                    <Typography>--</Typography>
+                    <Typography>Loading prize pool info...</Typography>
                   )}
                 </CardContent>
               </StyledCard>
