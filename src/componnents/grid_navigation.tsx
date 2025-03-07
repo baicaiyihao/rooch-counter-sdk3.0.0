@@ -127,7 +127,6 @@ export function GridNavigation({
             md={card.width?.md || md} 
             lg={card.width?.lg || lg} 
             key={index}
-            sx={{ mb: 3 }}  
           >
             <Card
               onClick={card.onClick}
@@ -149,6 +148,7 @@ export function GridNavigation({
                   <div className="mt-4 w-full">
                     {card.extraContent.isCheckedInToday !== undefined && (
                       <motion.div
+                         className=" space-y-3"
                         initial={{ scale: 0.8, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         transition={{ duration: 0.5 }}
