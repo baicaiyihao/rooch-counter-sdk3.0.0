@@ -13,6 +13,12 @@ import {
   Container,
   Tooltip,
   IconButton,
+  Pagination,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  SelectChangeEvent,
 } from "@mui/material";
 import { Leaderboard } from "../components/leaderboard";
 import { UserNft } from "../components/usernft";
@@ -29,14 +35,11 @@ import { Layout } from "../uicomponents/shared/layout";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
-import { keyframes } from "@emotion/react";
 
 // 定义 props 类型
 interface LeaderboardMessageProps {
   type: "success" | "error";
 }
-
-
 
 // Custom card styling
 const StyledCard = styled(Card)`
@@ -63,18 +66,6 @@ const StyledButton = styled(Button)`
 
   &:hover:not(:disabled) {
     transform: scale(1.05);
-  }
-`;
-
-// Slide-down animation for the message
-const slideDownAnimation = keyframes`
-  0% {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-  100% {
-    transform: translateY(0);
-    opacity: 1;
   }
 `;
 
@@ -109,6 +100,10 @@ export default function LeaderboardPage() {
   const [messageOpen, setMessageOpen] = useState(false);
   const [messageType, setMessageType] = useState<"success" | "error">("success");
   const [messageText, setMessageText] = useState("");
+
+  // 分页状态
+  const [page, setPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const {
     QueryLeaderboardRankingsData,
@@ -187,26 +182,20 @@ export default function LeaderboardPage() {
     if (!currentAddress || !client) return;
 
     try {
-      console.log("开始获取余额...");
       const decimals = await getCoinDecimals(client, FATETYPE);
-      console.log("获取到 decimals:", decimals);
-
       const balance = (await client.getBalance({
         owner: currentAddress?.genRoochAddress().toHexAddress() || "",
         coinType: FATETYPE,
       })) as any;
-      console.log("原始余额数据:", balance);
 
       if (!balance?.balance) {
-        console.warn("余额返回值异常:", balance);
         setFateBalance("0");
         return;
       }
       const formattedBalance = formatBalance(balance.balance, decimals);
-      console.log("格式化后的余额:", formattedBalance);
       setFateBalance(formattedBalance);
     } catch (error) {
-      console.error("获取 FATE 余额失败:", error);
+      console.error("Failed to fetch FATE balance:", error);
       setFateBalance("0");
     }
   };
@@ -214,7 +203,6 @@ export default function LeaderboardPage() {
   const updateCountdown = (endTime: string) => {
     const now = Math.floor(Date.now() / 1000);
     const end = parseInt(endTime);
-    console.log("end", endTime);
     const diff = end - now;
 
     if (diff <= 0) {
@@ -233,22 +221,21 @@ export default function LeaderboardPage() {
       const endTime = (await QueryLeaderboardEndTimeAndTotalBurned()).endTime;
       updateCountdown(endTime);
 
-      // 设置定时器每分钟更新倒计时
       const timer = setInterval(() => updateCountdown(endTime), 60000);
       return () => clearInterval(timer);
     } catch (error) {
-      console.error("获取结束时间失败:", error);
+      console.error("Failed to fetch end time:", error);
     }
   };
 
   // Fetch data on component mount
   useEffect(() => {
     if (currentAddress && client) {
-      fetchRankingsData();
       fetchUserNftData();
       fetchFateBalance();
-      fetchEndTime();
     }
+    fetchRankingsData();
+    fetchEndTime();
   }, [currentAddress, client]);
 
   // Auto-close message after 3 seconds
@@ -265,50 +252,61 @@ export default function LeaderboardPage() {
   const handleBurn = async () => {
     if (!burnAmount || isNaN(Number(burnAmount))) {
       setMessageType("error");
-      setMessageText("请输入有效数量");
+      setMessageText("Please enter a valid amount");
       setMessageOpen(true);
       return;
     }
 
     try {
-      // 保存当前燃烧数量用于显示
       const amountToBurn = Number(burnAmount);
-
-      // 清空输入框，防止重复提交
       setBurnAmount("");
 
-      // 执行燃烧操作
       await Burnfate(amountToBurn);
 
-      // 等待交易确认后再刷新数据
       setTimeout(async () => {
         try {
-          // 并行请求更新数据
           await Promise.all([
             fetchFateBalance(),
             fetchRankingsData(),
             fetchUserNftData(),
           ]);
 
-          // 成功提示
           setMessageType("success");
-          setMessageText(`成功燃烧 ${amountToBurn} FATE`);
+          setMessageText(`Successfully burn ${amountToBurn} $FATE`);
           setMessageOpen(true);
         } catch (error) {
-          console.error("数据刷新失败:", error);
+          console.error("Data refresh failed:", error);
           setMessageType("error");
-          setMessageText("数据刷新失败");
+          setMessageText("Data refresh failed");
           setMessageOpen(true);
         }
       }, 1000);
     } catch (error) {
-      console.error("燃烧失败:", error);
-      setBurnAmount(burnAmount); // Restore input on failure
+      console.error("Burn failed:", error);
+      setBurnAmount(burnAmount);
       setMessageType("error");
-      setMessageText("燃烧失败，请重试");
+      setMessageText("Burn failed, please try again");
       setMessageOpen(true);
     }
   };
+
+  // 分页逻辑
+  const handleChangePage = (_event: React.ChangeEvent<unknown>, newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event: SelectChangeEvent<number>) => {
+    setRowsPerPage(Number(event.target.value));
+    setPage(1); // 重置到第一页
+  };
+
+  const paginatedRankings = rankings.slice(
+    (page - 1) * rowsPerPage,
+    page * rowsPerPage
+  );
+
+  const totalPages = Math.ceil(rankings.length / rowsPerPage);
+  const totalUsers = rankings.length; // 总人数
 
   return (
     <Layout>
@@ -357,24 +355,23 @@ export default function LeaderboardPage() {
             <Typography variant="h4" sx={{ fontWeight: "bold" }}>
               League S1
             </Typography>
-
           </Stack>
-          <br/>
-          <br/>
+          <br />
+          <br />
           <Stack
             direction="row"
             justifyContent="center"
             alignItems="center"
             className="mb-8"
           >
-          {timeRemaining && (
+            {timeRemaining && (
               <Chip
                 label={`Time Remaining: ${timeRemaining}`}
                 color="warning"
                 sx={{ fontWeight: "bold" }}
               />
             )}
-                      </Stack>
+          </Stack>
           <Grid container spacing={4}>
             {/* User Info Card */}
             <Grid item xs={12}>
@@ -506,7 +503,7 @@ export default function LeaderboardPage() {
                       </Typography>
                     </Box>
                     {/* 表格内容 */}
-                    {rankings.map((item, index) => (
+                    {paginatedRankings.map((item, index) => (
                       <motion.div
                         key={item.key}
                         initial={{ opacity: 0, y: 10 }}
@@ -520,7 +517,7 @@ export default function LeaderboardPage() {
                             alignItems: "center",
                             py: 1,
                             borderBottom:
-                              index < rankings.length - 1
+                              index < paginatedRankings.length - 1
                                 ? "1px solid rgba(0, 0, 0, 0.12)"
                                 : "none",
                           }}
@@ -540,6 +537,50 @@ export default function LeaderboardPage() {
                         </Box>
                       </motion.div>
                     ))}
+                    {/* 分页控件 */}
+                    {rankings.length > 0 && (
+                      <Box sx={{ mt: 2 }}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Pagination
+                            count={totalPages}
+                            page={page}
+                            onChange={handleChangePage}
+                            color="primary"
+                            siblingCount={2}
+                            boundaryCount={1}
+                            showFirstButton
+                            showLastButton
+                            sx={{ display: "flex", alignItems: "center" }}
+                          />
+                          <FormControl sx={{ minWidth: 120 }}>
+                            <InputLabel>Rows per page</InputLabel>
+                            <Select
+                              value={rowsPerPage}
+                              onChange={handleChangeRowsPerPage}
+                              label="Rows per page"
+                            >
+                              <MenuItem value={10}>10 / page</MenuItem>
+                              <MenuItem value={20}>20 / page</MenuItem>
+                              <MenuItem value={50}>50 / page</MenuItem>
+                              <MenuItem value={100}>100 / page</MenuItem>
+                            </Select>
+                          </FormControl>
+                        </Box>
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{ textAlign: "center", mt: 1 }}
+                        >
+                          Total Users: {totalUsers}
+                        </Typography>
+                      </Box>
+                    )}
                   </Stack>
                 </CardContent>
               </StyledCard>

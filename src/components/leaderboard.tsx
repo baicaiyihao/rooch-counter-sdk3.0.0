@@ -1,6 +1,6 @@
-import { useCurrentAddress, useRoochClient, useSignAndExecuteTransaction } from "@roochnetwork/rooch-sdk-kit";
+import { useRoochClient, useSignAndExecuteTransaction } from "@roochnetwork/rooch-sdk-kit";
 import { Args, Transaction } from "@roochnetwork/rooch-sdk";
-import { MODULE_ADDRESS, RGASTYPE } from "../config/constants";
+import { MODULE_ADDRESS } from "../config/constants";
 import { fetchLevelConfigsTableData, fetchRankingsTableData, fetchRankTiersTableData, fetchUserRewardsTableData } from "../utils/tableData";
 import { LevelConfigsTableData , RankingsTableData, RankTiersTableData, UserRewardsTableData } from "../type";
 import { formatBalance, getCoinDecimals } from "../utils/coinUtils";
@@ -9,7 +9,6 @@ import { formatBalance, getCoinDecimals } from "../utils/coinUtils";
 export function Leaderboard(){
     const { mutateAsync: signAndExecuteTransaction } = useSignAndExecuteTransaction();
     const client = useRoochClient();
-    const usecurrentAddress = useCurrentAddress();
 
     const Burnfate = async (amount: number | bigint): Promise<any> => {
         const txn = new Transaction();

@@ -5,8 +5,6 @@ import { AnimatedBackground} from "./uicomponents/shared/animation_components"
 import { NavBar } from './uicomponents/shared/nav_bar';
 import { StakeByGrowVotes } from './components/stake_by_grow_votes';
 import {
-  useCurrentSession,
-  useRoochClient,
   useCurrentAddress,
 } from "@roochnetwork/rooch-sdk-kit";
 
@@ -16,8 +14,6 @@ import { CheckIn } from './components/check_in';
 import { Leaderboard } from './components/leaderboard';
 
 function App() {
-  const sessionKey = useCurrentSession();
-  const client = useRoochClient();
   const currentAddress = useCurrentAddress();
   const [leaderboardData, setLeaderboardData] = useState<{
     endTime: string;
@@ -48,7 +44,7 @@ function App() {
           const config = await QueryDailyCheckInConfig();
           setCheckInConfig(config);
         } catch (error) {
-          console.error("Failed to fetch check-in data:", error);
+          // console.error("Failed to fetch check-in data:", error);
         }
       }
     };
@@ -67,10 +63,10 @@ function App() {
     const fetchPoolInfo = async () => {
       try {
         const info = await QueryStakePoolInfo();
-        console.log('Stake pool information:', info); // Add log to view data
+        // console.log('Stake pool information:', info); // Add log to view data
         setPoolInfo(info);
       } catch (error) {
-        console.error("Failed to fetch stake pool information:", error);
+        // console.error("Failed to fetch stake pool information:", error);
       }
     };
     
@@ -93,7 +89,7 @@ function App() {
           const days = Math.floor(diff / (24 * 60 * 60));
           const hours = Math.floor((diff % (24 * 60 * 60)) / (60 * 60));
           const minutes = Math.floor((diff % (60 * 60)) / 60);
-          timeRemaining = `${days} days ${hours} hours ${minutes} minutes`;
+          timeRemaining = `${days} d ${hours} h ${minutes} m `;
         }
 
         setLeaderboardData({
@@ -102,7 +98,7 @@ function App() {
           totalBurned
         });
       } catch (error) {
-        console.error("Failed to fetch leaderboard data:", error);
+        // console.error("Failed to fetch leaderboard data:", error);
       }
     };
     
@@ -124,7 +120,7 @@ function App() {
       const days = Math.floor(diff / (24 * 60 * 60));
       const hours = Math.floor((diff % (24 * 60 * 60)) / (60 * 60));
       const minutes = Math.floor((diff % (60 * 60)) / 60);
-      setTimeRemaining(`${days} days ${hours} hours ${minutes} minutes`);
+      setTimeRemaining(`${days} d ${hours} h ${minutes} m`);
     };
     updateCountdown();
     const timer = setInterval(updateCountdown, 60000); // Update every minute

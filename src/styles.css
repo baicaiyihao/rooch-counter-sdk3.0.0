@@ -98,18 +98,18 @@ h6 {
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    max-width: 1200px;
+    max-width: 1440px;
     margin: 0 auto;
     padding: 0 1rem;
   }
 
 @media (max-width: 768px) {
-  .nav-container {
+  /* .nav-container {
     flex-direction: column;
     gap: 10px;
-  }
+  } */
   
   .app-header {
-    padding: 1rem;
+    padding: 0.5rem;
   }
 }
