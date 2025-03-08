@@ -273,21 +273,21 @@ export default function StakePage() {
         </Typography>
         <Stack spacing={2}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography>Total Stake Amount:</Typography>
+            <Typography>Total Stake Votes Amount:</Typography>
             <Zoom in={true} style={{ transitionDelay: '100ms' }}>
-              <ShiningChip label={`${poolInfo?.total_staked_votes || 0} votes`} color="primary" sx={{ fontWeight: 'bold' }} />
+              <ShiningChip label={`${poolInfo?.total_staked_votes || 0} Votes`} color="primary" sx={{ fontWeight: 'bold' }} />
             </Zoom>
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Typography>Release Per Day:</Typography>
             <Zoom in={true} style={{ transitionDelay: '200ms' }}>
-              <ShiningChip label={`${poolInfo?.fate_per_day || 0} FATE`} color="success" sx={{ fontWeight: 'bold' }} />
+              <ShiningChip label={`${poolInfo?.fate_per_day || 0} $FATE`} color="success" sx={{ fontWeight: 'bold' }} />
             </Zoom>
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Typography>Total Supply:</Typography>
             <Zoom in={true} style={{ transitionDelay: '300ms' }}>
-              <ShiningChip label={`${poolInfo?.total_fate_supply || 0} FATE`} color="secondary" sx={{ fontWeight: 'bold' }} />
+              <ShiningChip label={`${poolInfo?.total_fate_supply || 0} $FATE`} color="secondary" sx={{ fontWeight: 'bold' }} />
             </Zoom>
           </Box>
           <Box>
@@ -362,15 +362,15 @@ export default function StakePage() {
               </Zoom>
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Typography>Stake Amount:</Typography>
+              <Typography>Stake Votes Amount:</Typography>
               <Zoom in={true} style={{ transitionDelay: '100ms' }}>
-                <ShiningChip label={`${stakeInfo?.stake_grow_votes || 0} votes`} color="success" sx={{ fontWeight: 'bold' }} />
+                <ShiningChip label={`${stakeInfo?.stake_grow_votes || 0} Votes`} color="success" sx={{ fontWeight: 'bold' }} />
               </Zoom>
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Typography>Unstake Amount:</Typography>
+              <Typography>Unstake Votes Amount:</Typography>
               <Zoom in={true} style={{ transitionDelay: '200ms' }}>
-                <Chip label={`${stakeInfo?.fate_grow_votes || 0} votes`} color="primary" sx={{ fontWeight: 'bold' }} />
+                <Chip label={`${stakeInfo?.fate_grow_votes || 0} Votes`} color="primary" sx={{ fontWeight: 'bold' }} />
               </Zoom>
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

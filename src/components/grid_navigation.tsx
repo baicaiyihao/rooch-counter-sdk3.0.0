@@ -131,7 +131,6 @@ export function GridNavigation({
                 <div className="text-2xl mb-2">{card.icon}</div>
                 <div className="text-xl font-bold mb-2">{card.title}</div>
                 <div className="text-gray-600 text-sm">{card.description}</div>
-
                 {/* 签到信息部分 */}
                 {card.extraContent && (
                   <div className="mt-4 w-full">
@@ -154,16 +153,16 @@ export function GridNavigation({
                       </motion.div>
                     )}
                 
+                <br />
+
                 {card.extraContent.continueDays && (
                   <div className="mt-2 text-sm font-medium text-gray-700">
-                    Continuous check-in
-                    <span className="text-indigo-600 font-bold mx-1">
-                      {card.extraContent.continueDays}
-                    </span> 
-                    天
+                    Total Check-ins: {card.extraContent.continueDays}
                   </div>
                 )}
                 
+                <br />
+
                 {card.extraContent.nextReward && (
                   <div className="mt-2 text-sm font-medium text-gray-700 flex items-center">
                     Next Check-in reward: 
@@ -174,7 +173,7 @@ export function GridNavigation({
                       }}
                       transition={{ duration: 2, repeat: Infinity }}
                     >
-                      {card.extraContent.nextReward}
+                      {card.extraContent.nextReward} $FATE
                     </RewardBadge>
                   </div>
                 )}

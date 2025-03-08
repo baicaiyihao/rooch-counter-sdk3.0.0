@@ -445,7 +445,7 @@ function RafflePage() {
           }}
         >
           <Stack direction="row" justifyContent="center" alignItems="center" sx={{ mb: { xs: 4, md: 8 } }}>
-            <Typography variant="h4" sx={{ fontWeight: 'bold' }}>Raffle Event</Typography>
+            <Typography variant="h4" sx={{ fontWeight: 'bold' }}>Raffle System</Typography>
             <Box width={100} />
           </Stack>
           <Grid container spacing={4} sx={{ width: "100%", margin: "0 auto" }}>

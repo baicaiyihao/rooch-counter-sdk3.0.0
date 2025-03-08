@@ -132,8 +132,8 @@ function App() {
     {
       title: "Staking Operations",
       description: poolInfo ?
-        `Manage your staking, unstaking, and reward claiming operations`
-        : "Manage your staking, unstaking, and reward claiming operations.",
+        `Stake your tokens to earn daily rewards, or claim your $FATE now!`
+        : "Stake your tokens to earn daily rewards, or claim your $FATE now!",
       icon: "💰",
       onClick: () => window.location.href = '/stake',
       width: { lg: 8 },
@@ -145,7 +145,7 @@ function App() {
             icon: "📊"
           },
           {
-            label: "Daily Output",
+            label: "Release Per Day",
             value: `${poolInfo.fate_per_day || 0} FATE`,
             icon: "📈"
           }
@@ -156,8 +156,8 @@ function App() {
     {
       title: "Daily Check-In",
       description: checkInData
-        ? `Checked in for ${checkInData.continue_days} consecutive days, totaling ${checkInData.total_sign_in_days} days`
-        : "Perform daily check-in and view check-in records and settings.",
+        ? `Check-in to earn $FATE now!`
+        : "Check-in to earn $FATE now!",
       icon: "📅",
       onClick: () => window.location.href = '/check-in',
       width: { lg: 4 },
@@ -170,14 +170,14 @@ function App() {
     },
     {
       title: "Raffle System",
-      description: "Participate in the raffle event and claim rewards.",
+      description: "Participate in the raffle event, stake FATE to earn entries, and claim your rewards!",
       icon: "🎲",
       onClick: () => window.location.href = '/raffle',
       width: { lg: 4 }
     },
     {
       title: "🔥 League S1",
-      description: "Participate in the FATE burning ranking event to win generous rewards.",
+      description: "Participate in the $FATE burning ranking event to win generous rewards.",
       icon: "🏆",
       onClick: () => window.location.href = '/leaderboard',
       width: { lg: 8 },

@@ -1,10 +1,11 @@
 import { LoadingButton } from "@mui/lab";
-import { Card, CardContent, Stack, Typography, Box, Chip, Container, Grid, Fade, Zoom } from "@mui/material";
+import { Card, CardContent, Stack, Typography, Box, Chip, Container, Grid, Fade, Zoom, Tooltip, IconButton } from "@mui/material";
 import { useCurrentAddress, SessionKeyGuard } from "@roochnetwork/rooch-sdk-kit";
 import { useState, useEffect } from "react";
 import { CheckIn } from '../components/check_in';
 import { styled } from "@mui/material/styles";
 import { keyframes } from "@emotion/react";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { motion } from "framer-motion";
 import Confetti from 'react-confetti';
 import useWindowSize from 'react-use/lib/useWindowSize';
@@ -202,7 +203,14 @@ function CheckInPage() {
                 </Zoom>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Typography>Raffle counts:</Typography>
+                <Tooltip title="For every 7 consecutive days of check-ins, you can earn one free raffle entry." arrow placement="top">
+                    <IconButton size="small" sx={{ ml: 1 }}>
+                      <HelpOutlineIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
                 <Zoom in={true} style={{ transitionDelay: '400ms' }}>
                   <ShiningChip label={checkInRecord.lottery_count} color="secondary" sx={{ fontWeight: 'bold' }} />
                 </Zoom>
@@ -243,7 +251,7 @@ function CheckInPage() {
                   transition={{ delay: index * 0.1 }}
                 >
                   <ShiningChip
-                    label={`Day ${index + 1}: ${reward}`}
+                    label={`Day ${index + 1}: ${reward} $FATE`}
                     color={currentAddress && index < checkInRecord?.continue_days ? "success" : "default"}
                     variant={currentAddress && index < checkInRecord?.continue_days ? "filled" : "outlined"}
                     sx={{ fontWeight: 'bold' }}

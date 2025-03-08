@@ -353,7 +353,7 @@ export default function LeaderboardPage() {
             className="mb-8"
           >
             <Typography variant="h4" sx={{ fontWeight: "bold" }}>
-              League S1
+              League S1 Leaderboard
             </Typography>
           </Stack>
           <br />
@@ -388,7 +388,14 @@ export default function LeaderboardPage() {
                         alignItems: "center",
                       }}
                     >
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <Typography>Rank:</Typography>
+                      <Tooltip title="This is your current ranking on the leaderboard." arrow placement="top">
+                        <IconButton size="small" sx={{ ml: 1 }}>
+                          <HelpOutlineIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                      </Box>
                       <Chip
                         label={getCurrentUserRank()}
                         color="primary"
@@ -402,7 +409,14 @@ export default function LeaderboardPage() {
                         alignItems: "center",
                       }}
                     >
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <Typography>NFT Level:</Typography>
+                      <Tooltip title="This is the current NFT Level, which will be updated based on ranking after the snapshot is taken." arrow placement="top">
+                        <IconButton size="small" sx={{ ml: 1 }}>
+                          <HelpOutlineIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                      </Box>
                       <Chip
                         label={userNftData?.level || "-"}
                         color="success"
@@ -416,7 +430,7 @@ export default function LeaderboardPage() {
                         alignItems: "center",
                       }}
                     >
-                      <Typography>Burn Amount:</Typography>
+                      <Typography>Total Burn $FATE Amount:</Typography>
                       <Chip
                         label={userNftData?.burn_amount || "-"}
                         color="secondary"
@@ -425,7 +439,7 @@ export default function LeaderboardPage() {
                     </Box>
                     <Stack direction="row" spacing={2} alignItems="center">
                       <TextField
-                        placeholder="input amount"
+                        placeholder="Enter the amount of $FATE"
                         value={burnAmount}
                         onChange={(e) => setBurnAmount(e.target.value)}
                         size="small"
@@ -487,7 +501,7 @@ export default function LeaderboardPage() {
                           alignItems: "center",
                         }}
                       >
-                        <Typography>Level</Typography>
+                        <Typography>NFT Level</Typography>
                         <Tooltip
                           title="Level is a preview, and a snapshot will be synchronized to NFT every Monday at 20:00 (UTC+8)"
                           arrow
