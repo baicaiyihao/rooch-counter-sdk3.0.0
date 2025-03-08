@@ -1,22 +1,21 @@
-import { Box, Button, IconButton, Menu, MenuItem, useMediaQuery } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import { Heading } from "@radix-ui/themes";
 import { ConnectButton } from "@roochnetwork/rooch-sdk-kit";
 import { useEffect, useState } from "react";
-import MenuIcon from "@mui/icons-material/Menu"; // 汉堡菜单图标
 
 // 导航项定义
 const navItems = [
+  // { name: 'FATE X', path: '/' },
   { name: 'STAKE', path: '/stake' },
   { name: 'CHECK IN', path: '/check-in' },
   { name: 'RAFFLE', path: '/raffle' },
   { name: 'LEADERBOARD', path: '/leaderboard' },
-  { name: 'DOCS', path: '/docs' },
+  { name: 'DOCS', path: '/docs' }
 ];
 
 export function NavBar() {
+  // 当前活动页面
   const [activePage, setActivePage] = useState('/');
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null); // 控制下拉菜单
-  const isMobile = useMediaQuery('(max-width: 768px)'); // 判断是否为移动端
 
   useEffect(() => {
     setActivePage(window.location.pathname);
@@ -25,141 +24,76 @@ export function NavBar() {
   // 导航处理函数
   const handleNavigation = (path: string) => {
     window.location.href = path;
-    setAnchorEl(null); // 关闭下拉菜单
-  };
-
-  // 打开下拉菜单
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  // 关闭下拉菜单
-  const handleMenuClose = () => {
-    setAnchorEl(null);
   };
 
   return (
     <header className="app-header">
-      <Box
-        className="nav-container"
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between', // 水平分布
-          padding: { xs: '0.5rem', md: '1rem' }, // 移动端缩小内边距
-          maxWidth: '1440px',
-          margin: '0 auto',
-          width: '100%',
-          flexWrap: 'nowrap', // 防止换行
-        }}
-      >
-        {/* 左侧 Logo */}
-        <Box
-          sx={{
-            display: 'flex',
+      <div className="nav-container">
+      <Box 
+          sx={{ 
+            display: 'flex', 
             alignItems: 'center',
             transition: 'opacity 0.2s ease',
-            cursor: 'pointer',
-            '&:hover': { opacity: 0.8 },
+            cursor: 'pointer', // 添加指针样式
+            '&:hover': {
+              opacity: 0.8
+            }
           }}
-          onClick={() => handleNavigation('/')}
+          onClick={() => handleNavigation('/')} // 添加点击事件
         >
-          <Box
+                    {/* 左边添加 logo */}
+            <Box
             component="img"
             src="/4.svg" // 替换为实际的 logo 路径
             alt="Fate X Logo"
             sx={{
-              width: { xs: 30, md: 40 }, // 移动端缩小 Logo
-              height: 'auto',
-              marginRight: { xs: 0.5, md: 1 },
+              width: 40, // 调整 logo 宽度
+              height: "auto", // 保持比例
+              marginRight: 1, // 与文字之间的间距
             }}
           />
-          {!isMobile && <Heading>Fate X</Heading>} {/* 移动端隐藏文字 */}
+          <Heading>Fate X</Heading>
         </Box>
-
-        {/* 桌面端：显示导航项 */}
-        {!isMobile && (
-          <Box sx={{ display: 'flex', margin: '0 auto' }}>
-            {navItems.map((item) => (
-              <Button
-                key={item.name}
-                onClick={() => handleNavigation(item.path)}
-                sx={{
-                  color: activePage === item.path ? '#000' : 'rgba(0, 0, 0, 0.6)',
-                  margin: '0 4px',
-                  padding: '6px 16px',
-                  fontWeight: activePage === item.path ? 'bold' : 'normal',
-                  position: 'relative',
-                  transition: 'all 0.2s ease',
-                  '&:hover': {
-                    backgroundColor: 'transparent',
-                    color: '#000',
-                  },
-                  '&::after': activePage === item.path
-                    ? {
-                        content: '""',
-                        position: 'absolute',
-                        bottom: 0,
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        width: '30%',
-                        height: '2px',
-                        backgroundColor: '#000',
-                        borderRadius: '2px',
-                      }
-                    : {},
-                }}
-              >
-                {item.name}
-              </Button>
-            ))}
-          </Box>
-        )}
-
-        {/* 移动端：汉堡菜单 + 钱包按钮 */}
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          {isMobile && (
-            <IconButton
-              edge="start"
-              color="inherit"
-              aria-label="menu"
-              onClick={handleMenuOpen}
-              sx={{ color: 'black', padding: '6px', marginRight: '8px' }} // 靠右调整
-            >
-              <MenuIcon />
-            </IconButton>
-          )}
-          <ConnectButton
-            sx={{
-              padding: { xs: '6px 12px', md: '12px 32px' }, // 移动端缩小按钮
-              fontSize: { xs: '0.75rem', md: '1rem' },
-            }}
-          />
-        </Box>
-
-        {/* 下拉菜单 */}
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleMenuClose}
-          PaperProps={{
-            sx: { minWidth: '150px' },
-          }}
-        >
+        
+        <Box sx={{ 
+          display: 'flex',
+          margin: '0 auto',
+        }}>
           {navItems.map((item) => (
-            <MenuItem
+            <Button
               key={item.name}
               onClick={() => handleNavigation(item.path)}
               sx={{
-                fontWeight: activePage === item.path ? 'bold' : 'normal',
                 color: activePage === item.path ? '#000' : 'rgba(0, 0, 0, 0.6)',
+                margin: '0 4px',
+                padding: '6px 16px',
+                fontWeight: activePage === item.path ? 'bold' : 'normal',
+                position: 'relative',
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  backgroundColor: 'transparent',
+                  color: '#000'
+                },
+                '&::after': activePage === item.path ? {
+                  content: '""',
+                  position: 'absolute',
+                  bottom: 0,
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: '30%',
+                  height: '2px',
+                  backgroundColor: '#000',
+                  borderRadius: '2px'
+                } : {}
               }}
             >
               {item.name}
-            </MenuItem>
+            </Button>
           ))}
-        </Menu>
-      </Box>
+        </Box>
+        
+        <ConnectButton />
+      </div>
     </header>
   );
 }
