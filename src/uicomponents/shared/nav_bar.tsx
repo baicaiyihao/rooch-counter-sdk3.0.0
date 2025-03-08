@@ -1,11 +1,11 @@
-import { Box, Button } from "@mui/material";
+import { Box, Button, IconButton, Menu, MenuItem, useMediaQuery } from "@mui/material";
 import { Heading } from "@radix-ui/themes";
 import { ConnectButton } from "@roochnetwork/rooch-sdk-kit";
 import { useEffect, useState } from "react";
+import MenuIcon from "@mui/icons-material/Menu"; // 汉堡菜单图标
 
 // 导航项定义
 const navItems = [
-  // { name: 'FATE X', path: '/' },
   { name: 'STAKE', path: '/stake' },
   { name: 'CHECK IN', path: '/check-in' },
   { name: 'RAFFLE', path: '/raffle' },
@@ -16,7 +16,8 @@ const navItems = [
 export function NavBar() {
   // 当前活动页面
   const [activePage, setActivePage] = useState('/');
-
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null); // 控制下拉菜单
+  const isMobile = useMediaQuery('(max-width: 768px)'); // 判断是否为移动端
   useEffect(() => {
     setActivePage(window.location.pathname);
   }, []);
@@ -24,6 +25,17 @@ export function NavBar() {
   // 导航处理函数
   const handleNavigation = (path: string) => {
     window.location.href = path;
+        setAnchorEl(null); // 关闭下拉菜单
+      };
+
+      // 打开下拉菜单
+      const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget);
+      };
+
+      // 关闭下拉菜单
+      const handleMenuClose = () => {
+        setAnchorEl(null);
   };
 
   return (
