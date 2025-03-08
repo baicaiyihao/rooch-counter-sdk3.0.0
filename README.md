@@ -31,9 +31,6 @@ Follow us on [Twitter](https://x.com/fatex_protocol) for the latest updates and 
 ### Install Rooch CLI
 Follow the instructions in the [Rooch CLI Installation Guide](https://rooch.network/zh-CN/build/getting-started/installation) to set up the Rooch CLI on your system.
 
-### Publish Counter Package
-Refer to the [Counter Package Example](https://github.com/rooch-network/rooch/tree/main/examples/counter) for guidance on publishing a package to the Rooch network.
-
 ### Local Setup
 To run the dApp locally, follow these steps:
 
