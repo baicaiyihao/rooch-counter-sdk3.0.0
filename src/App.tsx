@@ -177,7 +177,7 @@ function App() {
     },
     {
       title: "🔥 League S1",
-      description: "Participate in the $FATE burning ranking event to win generous rewards.",
+      description: "Participate in the $FATE burning ranking event to win Airdrop rewards.",
       icon: "🏆",
       onClick: () => window.location.href = '/leaderboard',
       width: { lg: 8 },
