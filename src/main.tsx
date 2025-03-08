@@ -14,10 +14,13 @@ import {Theme} from '@radix-ui/themes';
 import { networkConfig } from "./networks";
 import App from './App';
 import { ErrorGuard } from "./ErrorGuard.tsx";
-import { MODULE_ADDRESS } from './constants.ts'
+import { MODULE_ADDRESS } from './config/constants.ts'
 import { Documentation } from './pages/DocumentationPage';
+import { isMainNetwork } from './utils/env.ts';
 
 const queryClient = new QueryClient();
+const network = isMainNetwork() ? 'mainnet' : 'testnet'
+
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
@@ -30,7 +33,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                 scopes: [`${MODULE_ADDRESS}::*::*`],
                 maxInactiveInterval: 86400
               }
-            } defaultNetwork='testnet'>
+            } defaultNetwork={network}>
               <WalletProvider preferredWallets={['UniSat']} chain={'bitcoin'} autoConnect>
                 <ErrorGuard/>
                 <BrowserRouter>

@@ -52,6 +52,7 @@ export function CheckIn(){
                 Args.address(address),
             ],
         }) as any;
+        console.log(result);
         return result?.return_values[0]?.decoded_value?.value;
     }
 

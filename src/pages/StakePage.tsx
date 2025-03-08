@@ -340,7 +340,7 @@ export default function StakePage() {
             </Typography>
             <Typography sx={{ mb: 1 }}>You didn't vote.</Typography>
             <Typography variant="body2">
-              Please go to <Typography component="a" href={`https://test-grow.rooch.network/project/${projectName}`} target="_blank" sx={{ fontWeight: 'bold', textDecoration: 'underline' }}>Grow</Typography> vote for the project.
+              Please go to <Typography component="a" href={`https://grow.rooch.network/project/${projectName}`} target="_blank" sx={{ fontWeight: 'bold', textDecoration: 'underline' }}>Grow</Typography> vote for the project.
             </Typography>
           </CardContent>
         </StyledCard>

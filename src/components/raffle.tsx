@@ -13,7 +13,7 @@ export function Raffle(){
         const txn = new Transaction();
         txn.callFunction({
             address: MODULE_ADDRESS,
-            module: "raffle_v2",
+            module: "raffle",
             function: "get_check_in_raffle_by_fate",
             args: [],
         });
@@ -42,7 +42,7 @@ export function Raffle(){
         const txn = new Transaction();
         txn.callFunction({
             address: MODULE_ADDRESS,
-            module: "raffle_v2",
+            module: "raffle",
             function: "claim_max_raffle",
             args: [],
         });
@@ -56,7 +56,7 @@ export function Raffle(){
     const QueryCheckInRaffle = async(): Promise<CheckInRaffle> => {
         const result = await client.executeViewFunction({
             address: MODULE_ADDRESS,
-            module: "raffle_v2",
+            module: "raffle",
             function: "query_check_in_raffle_view",
             args: [],
         }) as any;
@@ -68,7 +68,7 @@ export function Raffle(){
         const address = currentAddress?.genRoochAddress().toHexAddress() || "";
         const result = await client.executeViewFunction({
             address: MODULE_ADDRESS,
-            module: "raffle_v2",
+            module: "raffle",
             function: "query_check_in_raffle_record_view",
             args: [
                 Args.address(address),

@@ -1,9 +1,8 @@
-import { useCreateSessionKey, useCurrentAddress, useCurrentNetwork } from '@roochnetwork/rooch-sdk-kit';
+import { useCreateSessionKey, useCurrentAddress } from '@roochnetwork/rooch-sdk-kit';
 import { MODULE_ADDRESS } from '../config/constants';
 
 export function useSessionKey() {
   const { mutateAsync: createSessionKey } = useCreateSessionKey();
-  const network = useCurrentNetwork();
   const addr = useCurrentAddress();
 
   // 检查本地存储中是否有有效的 session key
@@ -39,11 +38,6 @@ export function useSessionKey() {
       );
       return true;
     } catch (e: any) {
-      if (e.code === 1004) {
-        const tag = network === 'mainnet' ? '' : 'test-';
-        window.open(`https://${tag}portal.rooch.network/faucet/${addr?.toStr()}`);
-      }
-      console.log('Session creation error:', e.code);
       return false;
     }
   };
