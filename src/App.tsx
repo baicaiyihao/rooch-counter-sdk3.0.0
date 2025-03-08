@@ -170,7 +170,7 @@ function App() {
     },
     {
       title: "Raffle System",
-      description: "Participate in the raffle event, stake FATE to earn entries, and claim your rewards!",
+      description: "Participate in the raffle event to earn $FATE!",
       icon: "🎲",
       onClick: () => window.location.href = '/raffle',
       width: { lg: 4 }
@@ -186,12 +186,12 @@ function App() {
         stats: [
           {
             label: "Event Status",
-            value: leaderboardData.timeRemaining === 'Event has ended' ? 'Ended' : 'Event in Progress🔥',
+            value: leaderboardData.timeRemaining === 'Event has ended' ? 'Ended' : '🔥Event in Progress',
             icon: "⏳"
           },
           {
             label: "Total Burned Amount",
-            value: `${leaderboardData.totalBurned || 0} FATE`,
+            value: `${leaderboardData.totalBurned || 0} $FATE`,
             icon: "🔥"
           }
         ]
