@@ -1,6 +1,7 @@
-# Fate X - Rooch dApp Starter Template
+# Fate X 
 
-Welcome to **Fate X**, a decentralized application (dApp) built using the `@roochnetwork/create-rooch` template. This dApp leverages the Rooch blockchain to provide an engaging platform for staking, daily check-ins, raffles, leaderboards, and more. It combines a user-friendly interface with powerful blockchain features to enhance user participation and reward systems.
+Welcome to **Fate X**.
+ This dApp leverages the Rooch blockchain to provide an engaging platform for staking, daily check-ins, raffles, leaderboards, and more. It combines a user-friendly interface with powerful blockchain features to enhance user participation and reward systems.
 
 This dApp was created using the following tools:
 
