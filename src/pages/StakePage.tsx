@@ -91,7 +91,7 @@ const RaffleMessage = styled(Box)<{ type: "success" | "error" }>(({ type }) => (
 }));
 
 export default function StakePage() {
-  const [isFeatureEnabled] = useState<boolean>(false); 
+  const [isFeatureEnabled] = useState<boolean>(true); 
   const [poolInfo, setPoolInfo] = useState<any>(null);
   const [stakeInfo, setStakeInfo] = useState<any>(null);
   const [hasVotes, setHasVotes] = useState<boolean | null>(null); // null 表示加载中
