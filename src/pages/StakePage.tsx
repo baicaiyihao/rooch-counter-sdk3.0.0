@@ -91,6 +91,7 @@ const RaffleMessage = styled(Box)<{ type: "success" | "error" }>(({ type }) => (
 }));
 
 export default function StakePage() {
+  const [isFeatureEnabled] = useState<boolean>(false); 
   const [poolInfo, setPoolInfo] = useState<any>(null);
   const [stakeInfo, setStakeInfo] = useState<any>(null);
   const [hasVotes, setHasVotes] = useState<boolean | null>(null); // null 表示加载中
@@ -420,9 +421,38 @@ export default function StakePage() {
     );
   };
 
+  const renderMaintenanceMessage = () => (
+    <Box
+      sx={{
+        height: '80vh',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        textAlign: 'center',
+        padding: '20px'
+      }}
+    >
+      <Typography 
+        variant="h4" 
+        sx={{ 
+          fontWeight: 'bold',
+          color: '#666',
+          maxWidth: '800px',
+          animation: 'fadeIn 0.5s ease-in',
+          '@keyframes fadeIn': {
+            '0%': { opacity: 0, transform: 'scale(0.9)' },
+            '100%': { opacity: 1, transform: 'scale(1)' }
+          }
+        }}
+      >
+        This feature is undergoing urgent maintenance and will be available later.
+      </Typography>
+    </Box>
+  );
   return (
     <Layout>
       <Container className="app-container">
+      {isFeatureEnabled ? (<>
         {justStaked && (
           <Confetti
             width={width}
@@ -488,7 +518,8 @@ export default function StakePage() {
               {renderUserStakeCard()}
             </Grid>
           </Grid>
-        </Stack>
+        </Stack></>
+      ) : renderMaintenanceMessage()}
       </Container>
     </Layout>
   );
