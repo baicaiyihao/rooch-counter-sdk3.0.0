@@ -136,7 +136,7 @@ function App() {
         : "Stake your tokens to earn daily rewards, or claim your $FATE now!",
       icon: "💰",
       onClick: () => window.location.href = '/stake',
-      width: { lg: 8 },
+      width: { lg: 6 },
       extraContent: poolInfo ? {
         stats: [
           {
@@ -160,13 +160,20 @@ function App() {
         : "Check-in to earn $FATE now!",
       icon: "📅",
       onClick: () => window.location.href = '/check-in',
-      width: { lg: 4 },
+      width: { lg: 3 },
       extraContent: checkInData && checkInConfig ? {
         continueDays: checkInData.continue_days,
         totalDays: checkInData.total_sign_in_days,
         nextReward: checkInConfig.daily_rewards[Math.min(checkInData.continue_days, checkInConfig.daily_rewards.length - 1)],
         isCheckedInToday: new Date(Number(checkInData.last_sign_in_timestamp) * 1000).toDateString() === new Date().toDateString()
       } : undefined
+    },
+    {
+      title: "Documentation",
+      description: "Learn more about FateX ecosystem and join our community! Click to explore →",
+      icon: "📚",
+      onClick: () => window.location.href = '/docs',
+      width: { lg: 3 }
     },
     {
       title: "Raffle System",
