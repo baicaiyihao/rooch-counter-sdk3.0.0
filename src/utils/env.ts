@@ -3,6 +3,7 @@
 'use client'
 
 export function isMainNetwork() {
+  return false
 
   if (typeof window !== 'undefined') {
     return (

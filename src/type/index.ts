@@ -50,10 +50,9 @@ export type StakePoolInfo = {
     start_time: u64,
     end_time: u64,
     total_fate_supply: u256,
-    mining_duration_seconds: u64,
-    fate_per_day: u128,
     total_mined_fate: u256,
     release_per_second: u128,
+    harvest_index: u128,
     alive: bool,
 }
 
