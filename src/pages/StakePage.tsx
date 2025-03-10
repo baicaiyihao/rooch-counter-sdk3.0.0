@@ -101,6 +101,7 @@ export default function StakePage() {
   const [messageType, setMessageType] = useState<"success" | "error">("success");
   const [messageText, setMessageText] = useState("");
   const [justStaked, setJustStaked] = useState(false);
+  const [isCreatingSession, setIsCreatingSession] = useState(false);
   const currentAddress = useCurrentAddress();
   const connectionStatus = useCurrentWallet();
   const { width, height } = useWindowSize();
@@ -135,30 +136,39 @@ export default function StakePage() {
   const fetchUserInfo = async () => {
     console.log("stake currentAddress", currentAddress);
     if (!currentAddress) return;
-
-    // 检查 session key 是否有效
+  
     const hasValidSession = await checkSessionKey();
     if (!hasValidSession) {
-      const success = await createSession();
-      if (!success) {
-        setMessageType("error");
-        setMessageText("RGas 不足");
-        setMessageOpen(true);
+      if (isCreatingSession) {
+        console.log("Session creation in progress, skipping...");
         return;
       }
+  
+      setIsCreatingSession(true);
+      try {
+        const success = await createSession();
+        if (!success) {
+          setMessageType("error");
+          setMessageText("Session Key creation failed, please try again.");  
+          setMessageOpen(true);
+          return;
+        }
+      } finally {
+        setIsCreatingSession(false);
+      }
     }
-
-    // session key 已确认有效，继续获取用户信息
+  
     try {
       await UpdateGrowVotes();
       const stakeData = await GetStakeInfo();
       console.log("stakeData", stakeData);
       setStakeInfo(stakeData);
-      setHasVotes(!!stakeData?.stake_grow_votes); // 如果 stake_grow_votes 存在且非 0，则认为有投票
+      const stake_grow_votes = Number(stakeData?.stake_grow_votes || 0);
+      setHasVotes(Boolean(stake_grow_votes));
     } catch (error) {
       console.error('get user stake info failed:', error);
       setStakeInfo(null);
-      setHasVotes(false); // 明确设置为未投票
+      setHasVotes(false);
     }
   };
 
@@ -186,6 +196,22 @@ export default function StakePage() {
     if (currentAddress) {
       fetchUserInfo();
       fetchFateBalance();
+  
+      const refreshInterval = setInterval(() => {
+        fetchUserInfo(); // 只刷新 stakeInfo，包括 accumulated_fate
+      }, 30000); // 30000ms = 30 seconds
+  
+      const handleVisibilityChange = () => {
+        if (document.visibilityState === 'visible') {
+          fetchUserInfo();
+        }
+      };
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+  
+      return () => {
+        clearInterval(refreshInterval);
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+      };
     }
   }, [currentAddress]);
 
