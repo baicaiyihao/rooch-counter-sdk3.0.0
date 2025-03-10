@@ -1,12 +1,28 @@
 import { useCreateSessionKey, useCurrentAddress } from '@roochnetwork/rooch-sdk-kit';
-import { MODULE_ADDRESS } from '../config/constants';
+import { MODULE_ADDRESS, APP_VERSION } from '../config/constants'; // 假设 APP_VERSION 已定义
 
 export function useSessionKey() {
   const { mutateAsync: createSessionKey } = useCreateSessionKey();
   const addr = useCurrentAddress();
 
+  // 检查版本并清除不匹配的 sessionKey
+  const checkAndClearVersion = () => {
+    const storedVersion = localStorage.getItem('appVersion');
+    if (storedVersion !== APP_VERSION) {
+      console.log(`Version mismatch: stored=${storedVersion}, current=${APP_VERSION}, clearing session keys`);
+      // 清除所有以 sessionKey_ 开头的本地存储项
+      Object.keys(localStorage).forEach((key) => {
+        if (key.startsWith('sessionKey_')) {
+          localStorage.removeItem(key);
+        }
+      });
+      localStorage.setItem('appVersion', APP_VERSION); // 更新版本号
+    }
+  };
+
   // 检查本地存储中是否有有效的 session key
   const checkSessionKey = async (): Promise<boolean> => {
+    checkAndClearVersion(); // 在检查 sessionKey 前验证版本
     if (!addr) return false;
     const sessionKeyData = localStorage.getItem(`sessionKey_${addr.toStr()}`);
     if (sessionKeyData) {
@@ -36,8 +52,10 @@ export function useSessionKey() {
         `sessionKey_${addr.toStr()}`,
         JSON.stringify({ expiresAt })
       );
+      localStorage.setItem('appVersion', APP_VERSION); // 更新版本号
       return true;
     } catch (e: any) {
+      console.error('Failed to create session key:', e.message);
       return false;
     }
   };
