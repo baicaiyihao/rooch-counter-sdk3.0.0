@@ -155,8 +155,9 @@ export default function StakePage() {
       console.log("stakeData", stakeData);
       setStakeInfo(stakeData);
       const stake_grow_votes = Number(stakeData?.stake_grow_votes || 0);
-      setHasVotes(Boolean(stake_grow_votes));
-    } catch (error) {
+      const fate_grow_votes = Number(stakeData?.fate_grow_votes || 0);
+      setHasVotes(Boolean(stake_grow_votes || fate_grow_votes));
+      } catch (error) {
       console.error('get user stake info failed:', error);
       setStakeInfo(null);
       setHasVotes(false); // 明确设置为未投票
