@@ -20,7 +20,7 @@ export function StakeByGrowVotes(){
         const txn = new Transaction();
         txn.callFunction({
             address: MODULE_ADDRESS,
-            module: "stake_by_grow_votes_v5",
+            module: "stake_by_grow_votes_v1",
             function: "update_grow_votes",
             args: [
                 Args.objectId(projectlist?.data[0]?.id),
@@ -34,7 +34,7 @@ export function StakeByGrowVotes(){
         const txn = new Transaction();
         txn.callFunction({
             address: MODULE_ADDRESS,
-            module: "stake_by_grow_votes_v5",
+            module: "stake_by_grow_votes_v1",
             function: "stake",
             args: [],
         });
@@ -45,7 +45,7 @@ export function StakeByGrowVotes(){
         const txn = new Transaction();
         txn.callFunction({
             address: MODULE_ADDRESS,
-            module: "stake_by_grow_votes_v5",
+            module: "stake_by_grow_votes_v1",
             function: "unstake",
             args: [],
         });
@@ -56,7 +56,7 @@ export function StakeByGrowVotes(){
         const txn = new Transaction();
         txn.callFunction({
             address: MODULE_ADDRESS,
-            module: "stake_by_grow_votes_v5",
+            module: "stake_by_grow_votes_v1",
             function: "harvest",
             args: [],
         });
@@ -68,7 +68,7 @@ export function StakeByGrowVotes(){
         const address = currentAddress?.genRoochAddress().toHexAddress() || "";
         const result = await client.executeViewFunction({
             address: MODULE_ADDRESS,
-            module: "stake_by_grow_votes_v5",
+            module: "stake_by_grow_votes_v1",
             function: "query_stake_info_view",
             args: [
                 Args.address(address),
@@ -81,7 +81,7 @@ export function StakeByGrowVotes(){
     const QueryStakePoolInfo = async (): Promise<StakePoolInfo> => {
         const result = await client.executeViewFunction({
             address: MODULE_ADDRESS,
-            module: "stake_by_grow_votes_v5",
+            module: "stake_by_grow_votes_v1",
             function: "query_pool_info_view",
             args: [],
         }) as any;
@@ -92,7 +92,7 @@ export function StakeByGrowVotes(){
     const QueryProjectName = async (): Promise<String> => {
         const result = await client.executeViewFunction({
             address: MODULE_ADDRESS,
-            module: "stake_by_grow_votes_v5",
+            module: "stake_by_grow_votes_v1",
             function: "query_project_name",
             args: [],
         }) as any;

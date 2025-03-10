@@ -30,7 +30,7 @@ export function Raffle(){
         });
     
         const filterCheckInRaffleEvents = (events: PaginatedIndexerEventViews) => {
-            const targetEventType = `${MODULE_ADDRESS}::raffle_v2::CheckInRaffleEmit`;
+            const targetEventType = `${MODULE_ADDRESS}::raffle::CheckInRaffleEmit`;
             return events.data.filter((event: { event_type: string; }) => event.event_type === targetEventType);
         };
     

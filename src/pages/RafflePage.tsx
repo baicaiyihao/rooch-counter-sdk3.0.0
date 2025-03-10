@@ -114,6 +114,7 @@ const RaffleMessage = styled(Box)<RaffleMessageProps>(({ type }) => ({
 }));
 
 function RafflePage() {
+  const [isFeatureEnabled] = useState<boolean>(false); // Added feature toggle
   const currentAddress = useCurrentAddress();
   const [loading, setLoading] = useState(false);
   const [raffleConfig, setRaffleConfig] = useState<any>(null);
@@ -159,6 +160,7 @@ function RafflePage() {
   const fetchData = async () => {
     try {
       const record = await QueryCheckInRaffleRecord();
+      console.log(record);
       setRaffleRecord(record);
     } catch (error) {
       console.error("Failed to fetch raffle record:", error);
@@ -387,110 +389,145 @@ function RafflePage() {
     </StyledCard>
   );
 
+  const renderMaintenanceMessage = () => (
+    <Box
+      sx={{
+        height: '80vh',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        textAlign: 'center',
+        padding: '20px',
+      }}
+    >
+      <Typography
+        variant="h4"
+        sx={{
+          fontWeight: 'bold',
+          color: '#666',
+          maxWidth: '800px',
+          animation: 'fadeIn 0.5s ease-in',
+          '@keyframes fadeIn': {
+            '0%': { opacity: 0, transform: 'scale(0.9)' },
+            '100%': { opacity: 1, transform: 'scale(1)' },
+          },
+        }}
+      >
+        This feature is undergoing urgent maintenance and will be available later.
+      </Typography>
+    </Box>
+  );
+
   return (
     <Layout>
       <Container className="app-container">
-        {showConfetti && (
-          <Confetti
-            width={width}
-            height={height}
-            recycle={false}
-            numberOfPieces={500}
-            gravity={0.1}
-            onConfettiComplete={() => setShowConfetti(false)}
-          />
+        {isFeatureEnabled ? (
+          <>
+            {showConfetti && (
+              <Confetti
+                width={width}
+                height={height}
+                recycle={false}
+                numberOfPieces={500}
+                gravity={0.1}
+                onConfettiComplete={() => setShowConfetti(false)}
+              />
+            )}
+            {messageOpen && (
+              <RaffleMessage type={messageType}>
+                {messageType === "success" && prizeDetails && (
+                  <>
+                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ duration: 0.5 }}>
+                      <EmojiEventsIcon sx={{ fontSize: "3rem", color: "white", mb: 2 }} />
+                    </motion.div>
+                    <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+                      {messageText}
+                    </Typography>
+                    <Typography variant="body1" sx={{ mt: 1 }}>
+                      Winning <ShiningChip label={`${prizeDetails.duration} $FATE`} sx={{ fontWeight: "bold", color: "white" }} />
+                    </Typography>
+                  </>
+                )}
+                {messageType === "error" && (
+                  <>
+                    <ErrorOutlineIcon sx={{ fontSize: "3rem", color: "white", mb: 2 }} />
+                    <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+                      {messageText}
+                    </Typography>
+                  </>
+                )}
+                {messageType === "success" && !prizeDetails && (
+                  <>
+                    <CheckCircleOutlineIcon sx={{ fontSize: "3rem", color: "white", mb: 2 }} />
+                    <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+                      {messageText}
+                    </Typography>
+                  </>
+                )}
+              </RaffleMessage>
+            )}
+            <Stack
+              className="font-sans"
+              direction="column"
+              sx={{
+                minHeight: "100vh",
+                padding: { xs: "1rem", md: "2rem" },
+                maxWidth: "1440px",
+                margin: "0 auto",
+                width: "100%",
+              }}
+            >
+              <Stack direction="row" justifyContent="center" alignItems="center" sx={{ mb: { xs: 4, md: 8 } }}>
+                <Typography variant="h4" sx={{ fontWeight: 'bold' }}>Raffle System</Typography>
+                <Box width={100} />
+              </Stack>
+              <Grid container spacing={4} sx={{ width: "100%", margin: "0 auto" }}>
+                <Grid item xs={12} md={6}>
+                  {renderRaffleDetailsCard()}
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  {renderPrizePoolCard()}
+                </Grid>
+              </Grid>
+              <Stack direction="row" spacing={2} justifyContent="center" sx={{ mt: 4 }}>
+                <SessionKeyGuard onClick={handleFateRaffle}>
+                  <StyledButton variant="contained" color="secondary" loading={loading} startIcon={<span>✨</span>}>
+                    Raffle
+                  </StyledButton>
+                </SessionKeyGuard>
+                <SessionKeyGuard onClick={handleClaimMaxRaffle}>
+                  <StyledButton
+                    variant="outlined"
+                    color="success"
+                    loading={loading}
+                    disabled={parseInt(raffleRecord?.raffle_count || "0") < 10}
+                    startIcon={<span>🏅</span>}
+                  >
+                    Claim Guaranteed
+                  </StyledButton>
+                </SessionKeyGuard>
+              </Stack>
+              {raffleConfig && (
+                <Fade in={true}>
+                  <Typography variant="body2" color="text.secondary" sx={{ mt: 2, textAlign: "center" }}>
+                    $FATE Balance: {fateBalance}
+                    <br />
+                    Raffle Fee:{" "}
+                    {(
+                      (Number(raffleConfig?.grand_prize_duration || 1000) * 5 +
+                        Number(raffleConfig?.second_prize_duration || 500) * 25 +
+                        Number(raffleConfig?.third_prize_duration || 150) * 70) /
+                      100
+                    ).toFixed(2)}{" "}
+                    $FATE
+                  </Typography>
+                </Fade>
+              )}
+            </Stack>
+          </>
+        ) : (
+          renderMaintenanceMessage()
         )}
-        {messageOpen && (
-          <RaffleMessage type={messageType}>
-            {messageType === "success" && prizeDetails && (
-              <>
-                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ duration: 0.5 }}>
-                  <EmojiEventsIcon sx={{ fontSize: "3rem", color: "white", mb: 2 }} />
-                </motion.div>
-                <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-                  {messageText}
-                </Typography>
-                <Typography variant="body1" sx={{ mt: 1 }}>
-                  Winning <ShiningChip label={`${prizeDetails.duration} $FATE`} sx={{ fontWeight: "bold", color: "white" }} />
-                </Typography>
-              </>
-            )}
-            {messageType === "error" && (
-              <>
-                <ErrorOutlineIcon sx={{ fontSize: "3rem", color: "white", mb: 2 }} />
-                <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-                  {messageText}
-                </Typography>
-              </>
-            )}
-            {messageType === "success" && !prizeDetails && (
-              <>
-                <CheckCircleOutlineIcon sx={{ fontSize: "3rem", color: "white", mb: 2 }} />
-                <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-                  {messageText}
-                </Typography>
-              </>
-            )}
-          </RaffleMessage>
-        )}
-        <Stack
-          className="font-sans"
-          direction="column"
-          sx={{
-            minHeight: "100vh",
-            padding: { xs: "1rem", md: "2rem" },
-            maxWidth: "1440px",
-            margin: "0 auto",
-            width: "100%",
-          }}
-        >
-          <Stack direction="row" justifyContent="center" alignItems="center" sx={{ mb: { xs: 4, md: 8 } }}>
-            <Typography variant="h4" sx={{ fontWeight: 'bold' }}>Raffle System</Typography>
-            <Box width={100} />
-          </Stack>
-          <Grid container spacing={4} sx={{ width: "100%", margin: "0 auto" }}>
-            <Grid item xs={12} md={6}>
-              {renderRaffleDetailsCard()}
-            </Grid>
-            <Grid item xs={12} md={6}>
-              {renderPrizePoolCard()}
-            </Grid>
-          </Grid>
-          <Stack direction="row" spacing={2} justifyContent="center" sx={{ mt: 4 }}>
-            <SessionKeyGuard onClick={handleFateRaffle}>
-              <StyledButton variant="contained" color="secondary" loading={loading} startIcon={<span>✨</span>}>
-                Raffle
-              </StyledButton>
-            </SessionKeyGuard>
-            <SessionKeyGuard onClick={handleClaimMaxRaffle}>
-              <StyledButton
-                variant="outlined"
-                color="success"
-                loading={loading}
-                disabled={parseInt(raffleRecord?.raffle_count || "0") < 10}
-                startIcon={<span>🏅</span>}
-              >
-                Claim Guaranteed
-              </StyledButton>
-            </SessionKeyGuard>
-          </Stack>
-          {raffleConfig && (
-            <Fade in={true}>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 2, textAlign: "center" }}>
-                $FATE Balance: {fateBalance}
-                <br />
-                Raffle Fee:{" "}
-                {(
-                  (Number(raffleConfig?.grand_prize_duration || 1000) * 5 +
-                    Number(raffleConfig?.second_prize_duration || 500) * 25 +
-                    Number(raffleConfig?.third_prize_duration || 150) * 70) /
-                  100
-                ).toFixed(2)}{" "}
-                $FATE
-              </Typography>
-            </Fade>
-          )}
-        </Stack>
       </Container>
     </Layout>
   );
