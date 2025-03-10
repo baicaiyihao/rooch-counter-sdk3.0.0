@@ -280,9 +280,9 @@ export default function StakePage() {
             </Zoom>
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography>Release Per Day:</Typography>
+            <Typography>Release Per Second:</Typography>
             <Zoom in={true} style={{ transitionDelay: '200ms' }}>
-              <ShiningChip label={`${poolInfo?.fate_per_day || 0} $FATE`} color="success" sx={{ fontWeight: 'bold' }} />
+              <ShiningChip label={`${poolInfo?.release_per_second || 0} $FATE`} color="success" sx={{ fontWeight: 'bold' }} />
             </Zoom>
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

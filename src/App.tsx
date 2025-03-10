@@ -145,8 +145,8 @@ function App() {
             icon: "📊"
           },
           {
-            label: "Release Per Day",
-            value: `${poolInfo.fate_per_day || 0} FATE`,
+            label: "Release Per Second",
+            value: `${poolInfo.release_per_second || 0} FATE`,
             icon: "📈"
           }
         ],
